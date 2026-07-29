@@ -13,7 +13,7 @@ window.AZADI_CONFIG = {
   // Optional: set to true only if you deploy the Cloudflare Pages Function
   // at /api/quote (OpenRouter). Otherwise the offline quote bank is used.
   useAiQuotes: false,
-  ga4Id: 'G-XXXXXXXXXX'          // replace with your GA4 Measurement ID
+  ga4Id: 'G-TPF23RP7M3'          // replace with your GA4 Measurement ID
 };
 
 // ---- Patriotic quotes (offline bank, zero-cost default) ----
