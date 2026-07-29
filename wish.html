@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+  <meta name="theme-color" content="#138808" />
+
+  <!-- NOTE: On a pure static site these OG tags are static (see README for the
+       optional Cloudflare Pages Function that rewrites them per ?name=). -->
+  <title>You've received a 15th August Greeting! 🇮🇳</title>
+  <meta name="description" content="Someone sent you a personalized Independence Day greeting. Open it and create your own free 15th August WhatsApp wish!" />
+  <link rel="canonical" href="https://azadiwish.pages.dev/wish.html" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="AzadiWish" />
+  <meta property="og:title" content="You've received a 15th August Greeting! 🇮🇳" />
+  <meta property="og:description" content="Open your personalized Independence Day surprise — and send your own free greeting on WhatsApp!" />
+  <meta property="og:image" content="https://azadiwish.pages.dev/images/og-default.svg" />
+  <meta property="og:url" content="https://azadiwish.pages.dev/wish.html" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <div class="app">
+
+    <!-- ===== Ad Slot 1: Top Banner ===== -->
+    <aside class="ad-slot ad-320x50 ad-top" aria-label="Advertisement">
+      <!-- AD SLOT 1 (Top 320x50) -->
+      Ad · 320×50
+    </aside>
+
+    <header class="site-header">
+      <div class="brand"><span class="flag">🇮🇳</span> <span class="tri">AzadiWish</span></div>
+      <p class="tagline" id="greeting-line">You've received a special greeting 🇮🇳</p>
+    </header>
+
+    <p class="countdown" id="countdown"></p>
+
+    <main>
+      <!-- ===== Personalized Card ===== -->
+      <section class="card-wrap" aria-label="Your greeting">
+        <article class="greeting-card" id="greeting-card">
+          <div class="chakra" id="chakra" aria-hidden="true"></div>
+          <span class="card-badge">🇮🇳 A Wish For You</span>
+          <div class="card-year" id="card-year">INDEPENDENCE DAY</div>
+          <h1 class="card-name" id="card-name">A Friend</h1>
+          <p class="card-wish" id="card-wish">Happy Independence Day 🇮🇳</p>
+          <p class="card-sub" id="card-sub">Celebrating the spirit of freedom</p>
+          <blockquote class="card-quote" id="card-quote"></blockquote>
+          <span class="card-footer-brand">azadiwish.pages.dev</span>
+          <div class="card-flag-strip" aria-hidden="true"></div>
+        </article>
+      </section>
+
+      <!-- ===== Ad Slot 2: Native Banner under card ===== -->
+      <aside class="ad-slot ad-300x250" aria-label="Advertisement">
+        <!-- AD SLOT 2 (Native 300x250) -->
+        Ad · 300×250
+      </aside>
+
+      <!-- ===== Slogan ===== -->
+      <section class="slogan-banner">
+        <div class="slogan" id="slogan">Jai Hind! 🇮🇳</div>
+        <div class="slogan-sub" id="slogan-sub">Victory to India</div>
+      </section>
+
+      <!-- ===== Why we celebrate ===== -->
+      <h2 class="section-title" id="info-title">Why we celebrate 15th August</h2>
+      <section class="info-card" id="info-body"></section>
+
+      <!-- Inline create CTA (in addition to floating) -->
+      <a class="btn btn-share" href="index.html" style="margin-top:18px;text-decoration:none;">
+        <span>🎨</span> Create Your Own Greeting — FREE
+      </a>
+    </main>
+
+    <footer class="site-footer">
+      <p>© <span id="year"></span> AzadiWish · Made with 🧡🤍💚 for India</p>
+    </footer>
+  </div>
+
+  <!-- ===== Floating CTA (viral loop) ===== -->
+  <a class="floating-cta" id="floating-cta" href="index.html">
+    <span>🎨</span> Create Your Own Greeting
+  </a>
+
+  <!-- ===== Ad Slot 3: Sticky Bottom ===== -->
+  <aside class="ad-slot ad-320x50 ad-sticky-bottom" id="ad-sticky" aria-label="Advertisement">
+    <span class="ad-close" id="sticky-ad-close" title="Close">×</span>
+    <!-- AD SLOT 3 (Sticky 320x50) -->
+    Ad · 320×50
+  </aside>
+
+  <canvas id="confetti-canvas" aria-hidden="true"></canvas>
+  <div class="toast" id="toast"></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/wish.js"></script>
+  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+</body>
+</html>

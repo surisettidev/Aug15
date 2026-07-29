@@ -1,0 +1,4 @@
+# Cloudflare Pages redirects
+# Pretty URL for the recipient page. If functions/wish.js is present it handles
+# /wish (dynamic OG); this line is a fallback for when Functions are disabled.
+/wish   /wish.html   200

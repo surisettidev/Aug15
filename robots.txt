@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://azadiwish.pages.dev/sitemap.xml
