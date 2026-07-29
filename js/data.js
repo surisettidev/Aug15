@@ -8,8 +8,8 @@ window.AZADI_CONFIG = {
   // Set this to your live domain after deploy (no trailing slash).
   // Leave blank to auto-detect from window.location.origin.
   baseUrl: '',
-  independenceYear: 2025,        // display year on the card (update yearly)
-  independenceDateISO: '2025-08-15T00:00:00+05:30', // IST midnight of Aug 15
+  independenceYear: 2026,        // display year on the card (update yearly)
+  independenceDateISO: '2026-08-15T00:00:00+05:30', // IST midnight of Aug 15
   // Optional: set to true only if you deploy the Cloudflare Pages Function
   // at /api/quote (OpenRouter). Otherwise the offline quote bank is used.
   useAiQuotes: false,
