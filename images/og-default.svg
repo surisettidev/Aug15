@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FF9933"/>
+      <stop offset="0.42" stop-color="#ffffff"/>
+      <stop offset="0.58" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#138808"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#g)"/>
+  <g transform="translate(600,315)" opacity="0.12">
+    <circle r="150" fill="none" stroke="#000080" stroke-width="8"/>
+    <circle r="16" fill="#000080"/>
+  </g>
+  <text x="600" y="250" font-family="Poppins, Arial, sans-serif" font-size="70" font-weight="800" fill="#000080" text-anchor="middle">Happy Independence Day</text>
+  <text x="600" y="340" font-family="Poppins, Arial, sans-serif" font-size="120" font-weight="800" fill="#000080" text-anchor="middle">15 August 🇮🇳</text>
+  <text x="600" y="420" font-family="Poppins, Arial, sans-serif" font-size="42" font-weight="600" fill="#14213d" text-anchor="middle">Create &amp; share your free personalized wish</text>
+  <text x="600" y="480" font-family="Poppins, Arial, sans-serif" font-size="36" font-weight="700" fill="#138808" text-anchor="middle">azadiwish.pages.dev</text>
+</svg>
