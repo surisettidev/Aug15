@@ -104,20 +104,57 @@
       nameInput.focus();
       return;
     }
-    var url = buildWishUrl(n) + '&q=' + encodeURIComponent(currentQuote.text.slice(0, 60));
-    var text = buildWhatsAppText(n, buildWishUrl(n));
-    var waUrl = 'https://wa.me/?text=' + encodeURIComponent(text);
+    var shareUrl = buildWishUrl(n) + '&q=' + encodeURIComponent(currentQuote.text.slice(0, 60));
+    var shareTitle = n + ' — 15th August Greeting 🇮🇳';
+    var shareText = buildWhatsAppText(n, shareUrl);
 
     track('share_click', { name_len: n.length });
     launchConfetti(1600);
 
-    // show 1.5s interstitial (with ad slot inside), then open WhatsApp
+    // Show 1.5s interstitial (with ad inside), THEN trigger the share.
+    // On mobile, navigator.share MUST be called from a user-gesture — the
+    // setTimeout still counts as originating from the click gesture on
+    // modern browsers, but if Safari/older Chrome rejects it we fall back
+    // to wa.me automatically in the catch.
     overlay.classList.add('show');
     setTimeout(function () {
       overlay.classList.remove('show');
-      track('share_whatsapp_open', {});
-      window.location.href = waUrl;
+      openShareSheet(shareTitle, shareText, shareUrl);
     }, 1500);
+  }
+
+  /**
+   * Trigger the native OS share sheet (WhatsApp, Instagram, Telegram,
+   * Messages, Copy Link, etc.). Falls back to wa.me on desktops / old
+   * browsers that don't support navigator.share.
+   */
+  function openShareSheet(title, text, url) {
+    var canNativeShare = (typeof navigator !== 'undefined' &&
+                          typeof navigator.share === 'function');
+    if (canNativeShare) {
+      navigator.share({ title: title, text: text, url: url })
+        .then(function () { track('share_native_ok', {}); })
+        .catch(function (err) {
+          // User dismissed → don't fall back (they cancelled on purpose).
+          if (err && (err.name === 'AbortError' || String(err).indexOf('cancel') !== -1)) {
+            track('share_native_cancel', {});
+            return;
+          }
+          track('share_native_fail', { err: String(err && err.name || err).slice(0, 40) });
+          openWhatsAppFallback(text);
+        });
+    } else {
+      openWhatsAppFallback(text);
+    }
+  }
+
+  function openWhatsAppFallback(text) {
+    track('share_whatsapp_open', {});
+    // wa.me works on mobile (opens native app) and desktop (opens WhatsApp Web).
+    var waUrl = 'https://wa.me/?text=' + encodeURIComponent(text);
+    // Use window.open so it opens a new tab on desktop instead of navigating away.
+    var w = window.open(waUrl, '_blank', 'noopener');
+    if (!w) window.location.href = waUrl; // popup blocked → same-tab
   }
 
   shareBtn.addEventListener('click', doShare);

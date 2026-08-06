@@ -17,6 +17,7 @@
   <meta name="description" content="Create a free personalized 15th August Independence Day greeting card with your name and share it instantly on WhatsApp. Har Ghar Tiranga — Jai Hind!" />
   <meta name="keywords" content="Independence Day greetings, 15 August wishes, personalized Independence Day card, WhatsApp greeting, Har Ghar Tiranga, Jai Hind, azadi wish" />
   <link rel="canonical" href="https://azadiwish.pages.dev/" />
+  <link rel="icon" type="image/svg+xml" href="/images/favicon.svg" />
 
   <!-- Open Graph (WhatsApp/Facebook preview) -->
   <meta property="og:type" content="website" />
@@ -33,9 +34,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/style.css" />
 
-  <!-- Google AdSense -->
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6861925637204828"
-     crossorigin="anonymous"></script>
+  <!-- Ads are loaded dynamically by js/ads.js based on AZADI_CONFIG.ads.network -->
 
   <!-- Structured data for SEO -->
   <script type="application/ld+json">
@@ -59,16 +58,7 @@
   <div class="app">
 
     <!-- ===== Ad Slot 1: Top Banner 320x50 ===== -->
-    <aside class="ad-slot ad-320x50 ad-top" aria-label="Advertisement">
-      <ins class="adsbygoogle"
-           style="display:block"
-           data-ad-client="ca-pub-6861925637204828"
-           data-ad-slot="1234567890"
-           data-ad-format="horizontal"></ins>
-      <script>
-           (adsbygoogle = window.adsbygoogle || []).push({});
-      </script>
-    </aside>
+    <aside class="ad-slot ad-320x50 ad-top" data-ad-slot="top" aria-label="Advertisement"></aside>
 
     <!-- ===== Header ===== -->
     <header class="site-header">
@@ -100,16 +90,7 @@
       <div class="achievement" id="achievement" role="status"></div>
 
       <!-- ===== Ad Slot 2: Native Banner 300x250 (under card) ===== -->
-      <aside class="ad-slot ad-300x250" aria-label="Advertisement">
-        <ins class="adsbygoogle"
-             style="display:block"
-             data-ad-client="ca-pub-6861925637204828"
-             data-ad-slot="2345678901"
-             data-ad-format="rectangle"></ins>
-        <script>
-             (adsbygoogle = window.adsbygoogle || []).push({});
-        </script>
-      </aside>
+      <aside class="ad-slot ad-300x250" data-ad-slot="inline" aria-label="Advertisement"></aside>
 
       <!-- ===== Input Form ===== -->
       <section class="creator-form" aria-label="Create your greeting">
@@ -123,7 +104,7 @@
         </div>
 
         <button class="btn btn-share" id="share-btn" type="button">
-          <span>📲</span> Share to WhatsApp
+          <span>📲</span> Share your greeting
         </button>
         <button class="btn btn-copy" id="copy-btn" type="button">🔗 Copy my greeting link</button>
 
@@ -150,36 +131,19 @@
   </div>
 
   <!-- ===== Ad Slot 3: Sticky Bottom Banner 320x50 ===== -->
-  <aside class="ad-slot ad-320x50 ad-sticky-bottom" id="ad-sticky" aria-label="Advertisement">
+  <aside class="ad-slot ad-320x50 ad-sticky-bottom" id="ad-sticky" data-ad-slot="sticky" aria-label="Advertisement">
     <span class="ad-close" id="sticky-ad-close" title="Close">×</span>
-    <ins class="adsbygoogle"
-         style="display:block"
-         data-ad-client="ca-pub-6861925637204828"
-         data-ad-slot="3456789012"
-         data-ad-format="horizontal"></ins>
-    <script>
-         (adsbygoogle = window.adsbygoogle || []).push({});
-    </script>
   </aside>
 
   <!-- ===== Share Interstitial Modal (with ad slot) ===== -->
-  <div class="modal-overlay" id="share-modal" role="dialog" aria-modal="true" aria-label="Preparing your WhatsApp wish">
+  <div class="modal-overlay" id="share-modal" role="dialog" aria-modal="true" aria-label="Preparing your wish">
     <div class="modal-box">
       <div class="modal-flag">🇮🇳</div>
-      <div class="modal-title">Formatting your customized WhatsApp wish…</div>
+      <div class="modal-title">Formatting your customized wish…</div>
       <div class="spinner"></div>
       <!-- Ad inside the interstitial -->
-      <aside class="ad-slot ad-300x250 modal-ad" aria-label="Advertisement">
-        <ins class="adsbygoogle"
-             style="display:block"
-             data-ad-client="ca-pub-6861925637204828"
-             data-ad-slot="4567890123"
-             data-ad-format="rectangle"></ins>
-        <script>
-             (adsbygoogle = window.adsbygoogle || []).push({});
-        </script>
-      </aside>
-      <p class="modal-sub">Opening WhatsApp… Jai Hind! 🎉</p>
+      <aside class="ad-slot ad-300x250 modal-ad" data-ad-slot="interstitial" aria-label="Advertisement"></aside>
+      <p class="modal-sub">Opening share sheet… Jai Hind! 🎉</p>
     </div>
   </div>
 
@@ -188,6 +152,7 @@
 
   <script src="js/data.js"></script>
   <script src="js/common.js"></script>
+  <script src="js/ads.js"></script>
   <script src="js/creator.js"></script>
   <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 </body>

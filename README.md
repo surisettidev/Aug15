@@ -5,32 +5,34 @@ Users type a name, preview an animated tricolor greeting card, and share a
 personalized WhatsApp link. Recipients see the sender's name and are nudged to
 create their own — keeping the viral loop alive.
 
-> **Why the name "AzadiWish"?** Short, one word, emotionally patriotic
-> (*Azadi* = freedom), states the function (*wish*), and is dead-easy to type &
-> share on WhatsApp. Recommended free domain: **`azadiwish.pages.dev`**.
-> Backup ideas: `wish15aug`, `tirangawish`, `har-ghar-wish`, `azadi-greet`.
+**Live site:** https://azadiwish.pages.dev
+**GitHub:** https://github.com/surisettidev/Aug15
 
 ---
 
-## ✅ Completed Features
+## ✅ What was fixed in the Aug 6, 2026 patch
 
-- **Creator / landing page** (`index.html`) — tricolor theme, animated Ashoka
-  Chakra, live real-time preview card, name input, quote selector, confetti.
-- **Recipient page** (`wish.html`) — shows the sender's name prominently, a
-  personalized greeting line, the quote, "why we celebrate", floating CTA.
-- **WhatsApp share** with high-converting pre-filled text.
-- **1.5s share interstitial modal** with an ad slot inside, then opens WhatsApp.
-- **3 ad slots** (Top 320×50, Native 300×250 under card, Sticky bottom 320×50)
-  + an interstitial ad slot — clean placeholders ready for your ad code.
-- **Time-based dynamic wishes** — automatically switches between *Countdown →
-  Advance → Happy → Belated* around 15 August, plus a live countdown timer.
-- **"Why we celebrate" + rotating slogans** for pride/achievement feel.
-- **Achievement toast** after entering a name (satisfaction → more shares).
-- **SEO**: meta tags, canonical, JSON-LD, `robots.txt`, `sitemap.xml`, OG image.
-- **GA4** snippet (auto-loads only when you set a real Measurement ID).
-- **Optional Cloudflare Pages Functions**: dynamic per-name OG preview
-  (`/functions/wish.js`) and OpenRouter AI quotes (`/functions/api/quote.js`).
-- **< 1 MB** total page weight, 100% responsive & touch-friendly, no build step.
+1. **Killed Cloudflare Error 1019** on `/wish?name=…` — the OG-rewrite Function
+   was recursively fetching `/wish.html` which Cloudflare Pages was 308-redirecting
+   back to `/wish`, causing an infinite loop. Now uses `env.ASSETS.fetch()` with a
+   safe `next()` fallback wrapped in try/catch, so users never see 1019 again.
+2. **Native share sheet (Web Share API)** — the share button now triggers the OS
+   share sheet (WhatsApp, Instagram, Telegram, Messages, Copy, …) via
+   `navigator.share()` on mobile. Desktop and unsupported browsers fall back to
+   `wa.me` opened in a new tab.
+3. **Single-toggle ad network switch** in `js/data.js` — `ads.network` controls
+   everything:
+   - `'medianet'` for the Aug 7–9 Meta-ads window (AdSense-safe: no policy risk from paid traffic)
+   - `'adsense'` after Aug 9 when traffic is 100% organic viral WhatsApp shares
+   - `'auto'` for AdSense-with-Media.net-fallback (⚠️ after AdSense is approved and Meta ads are off)
+   - `'off'` for testing
+4. **All ad slots wired for both networks** — top / inline / sticky / interstitial
+   render via `js/ads.js` (a single renderer). `wish.html` previously had
+   placeholder-text ads only; now identical to `index.html`.
+5. **baseUrl fixed** — was blank, breaking share links on some setups. Now
+   hardcoded to `https://azadiwish.pages.dev`.
+6. **Favicon added** (tricolor SVG) — removes the 404.
+7. **Meta Ads Playbook** — full seed-campaign brief in `META_ADS_PLAYBOOK.md`.
 
 ---
 
@@ -39,177 +41,149 @@ create their own — keeping the viral loop alive.
 | Path | Purpose | Parameters |
 |------|---------|-----------|
 | `/` (`index.html`) | Creator / landing page | — |
-| `/wish.html` | Recipient greeting view | `?name=<Name>` (also `?n=`), optional `?q=<quote>` |
-| `/wish` | Same as above, **pretty URL** with dynamic OG (needs `functions/wish.js`) | `?name=<Name>` |
-| `/api/quote` | Optional AI patriotic quote (JSON) | — |
+| `/wish.html` | Recipient greeting view (static, always works) | `?name=<Name>` (also `?n=`), optional `?q=<quote>` |
+| `/wish` | Same as above with **dynamic per-name WhatsApp OG preview** | `?name=<Name>` |
+| `/api/quote` | Optional AI patriotic quote (needs OpenRouter key in CF env) | — |
 | `/sitemap.xml`, `/robots.txt` | SEO | — |
 
-**Example share link:** `https://azadiwish.pages.dev/wish.html?name=Mahatma%20Gandhi`
+**Example share link:** `https://azadiwish.pages.dev/wish.html?name=Rahul`
 
 ---
 
-## 🎬 App Flow Walkthrough (what a "flow video" would show)
+## 💰 Ad Network Timeline (READ THIS)
 
-> I can't record video from here, so here is the exact step-by-step flow.
-> Reproduce it live on your deployed URL.
+| Date range | `ads.network` in `js/data.js` | Why |
+|-----------|-------------------------------|-----|
+| **Aug 6 – Aug 9, 2026** | `'medianet'` | Meta-ads paid traffic is active. AdSense forbids running ads on incentivized/purchased traffic on brand-new sites — running AdSense here risks a permanent ban. Media.net is AdSense-safe and pays out on paid-traffic days. |
+| **Aug 9 onwards** | `'adsense'` | Meta ads stopped. Traffic is 100% organic WhatsApp viral loop → fully AdSense-compliant. |
+| **After AdSense is approved AND you also want Media.net as a fallback** | `'auto'` | Tries AdSense first; if a slot doesn't fill in 2.5s, replaces it with a Media.net ad. |
+| **Testing** | `'off'` | No ads render; placeholders shown. |
 
-1. **Open `/`** → tricolor card shows *"Your Name"*, a live countdown to 15 Aug,
-   ad slots, a random patriotic quote.
-2. **Type `Mahatma Gandhi`** in the input → the card name updates instantly to
-   **Mahatma Gandhi**; on blur, confetti bursts + an achievement message
-   *"🎖️ Card ready, Mahatma Gandhi! …"* appears.
-3. **(Optional)** pick a quote from the dropdown → card quote updates live.
-4. **Tap "Share to WhatsApp"** → a stylish modal appears for **1.5s**
-   (*"Formatting your customized WhatsApp wish… 🇮🇳"* with an ad slot), then
-   WhatsApp opens with pre-filled text:
-   > 🇮🇳 *Mahatma Gandhi* has sent you a special Independence Day greeting!
-   > Open your customized surprise here 👇
-   > https://azadiwish.pages.dev/wish.html?name=Mahatma%20Gandhi
-5. **Recipient taps the link** → `/wish.html?name=Mahatma Gandhi` opens with
-   confetti and the header **"Mahatma Gandhi wishes you a very Happy Independence
-   Day! 🇮🇳"**, the card showing *Mahatma Gandhi*, a quote, and *"why 15th August
-   is celebrated"*.
-6. **Floating orange "Create Your Own Greeting"** button (+ inline button) sends
-   the recipient back to `/` → **viral loop repeats**.
-
-Try other names like `Narendra Modi`, `Rahul`, or a business like `Sharma Sweets`.
-
----
-
-## 🚀 Deploy to Cloudflare Pages (100% Free)
-
-### Option A — Connect your GitHub repo (recommended)
-1. Push these files to your GitHub repo (`https://github.com/surisettidev/Aug15`).
-   > ⚠️ **Security:** the GitHub token you shared in chat is now exposed —
-   > **revoke/regenerate it immediately** in GitHub → Settings → Developer
-   > settings → Personal access tokens. Never paste tokens in plain text.
-2. Go to **Cloudflare Dashboard → Workers & Pages → Create → Pages → Connect to Git**.
-3. Select the `Aug15` repo.
-4. Build settings:
-   - **Framework preset:** `None`
-   - **Build command:** *(leave empty)*
-   - **Build output directory:** `/` (root)
-5. **Deploy**. You get `https://<project>.pages.dev`. In project settings you can
-   rename the project so the URL becomes e.g. `azadiwish.pages.dev`.
-
-### Option B — Direct upload
-Cloudflare Pages → Create → **Upload assets** → drag the whole folder → Deploy.
-
-> **Cloudflare Pages Functions** (`/functions/...`) deploy automatically — no
-> extra config. If you use Option B, upload the `functions` folder too.
-
----
-
-## ⚙️ Configuration (edit `js/data.js`)
-
+**How to flip on Aug 9:** open `js/data.js`, change one line:
 ```js
-window.AZADI_CONFIG = {
-  baseUrl: '',                 // set to 'https://azadiwish.pages.dev' after deploy
-  independenceYear: 2025,      // update yearly
-  independenceDateISO: '2025-08-15T00:00:00+05:30',
-  useAiQuotes: false,          // true only if you deploy the OpenRouter function
-  ga4Id: 'G-XXXXXXXXXX'        // your GA4 Measurement ID
-};
+ads: { network: 'adsense', /* ... */ }
+```
+Commit + push. Cloudflare auto-deploys in ~2 minutes. Done.
+
+**Media.net setup (do BEFORE Aug 7):**
+1. Sign up at https://www.media.net (instant-ish approval, usually <24h).
+2. Grab your Customer ID (CID) and one Custom-Ad-Slot ID (CRID) per slot.
+3. Paste them into `js/data.js` under `ads.medianetCid` and `ads.medianetSlots`.
+4. Commit + push.
+
+---
+
+## 📱 Share Flow (post-fix)
+
+1. User opens `/`, types `Rahul` → live-preview card updates.
+2. Taps **📲 Share your greeting**.
+3. 1.5-second interstitial modal shows (with an ad inside — extra revenue).
+4. On mobile → native OS share sheet appears (WhatsApp, Insta, Telegram, Messages, Copy…).
+5. On desktop → new-tab opens `wa.me` (WhatsApp Web).
+6. Recipient taps the shared link → hits `/wish?name=Rahul` → dynamic OG title says *"Rahul sent you a 15th August Greeting!"* → recipient sees personalized card + big **"Create Your Own Greeting"** button → viral loop closes.
+
+---
+
+## 🚀 Deployment
+
+- **Cloudflare Pages** deploys automatically on every push to `main` on `github.com/surisettidev/Aug15`.
+- Build settings: framework=None, build command=empty, output=`/`.
+- Cloudflare Pages Functions in `/functions/` deploy automatically.
+- **DO NOT** put ad publisher IDs in Cloudflare secrets — they must be in client JS (they're not secret). Only put backend-only keys (like OpenRouter's `OPENROUTER_API_KEY`) in CF env vars.
+
+---
+
+## 🔑 Cloudflare Environment Variables (only if using AI quotes)
+
+Add in Cloudflare Pages → Settings → Environment variables:
+
+| Variable | Value | Notes |
+|----------|-------|-------|
+| `OPENROUTER_API_KEY` | `sk-or-...` | Optional. Enables `/api/quote` AI patriotic quotes. |
+| `OPENROUTER_MODEL` | `openai/gpt-4o-mini` | Optional. Cheap model. |
+
+Then set `useAiQuotes: true` in `js/data.js`.
+
+---
+
+## 📊 Analytics
+
+**GA4 Measurement ID:** `G-TPF23RP7M3` (already set in `js/data.js`).
+
+Custom events tracked:
+- `share_click` — user tapped the share button
+- `share_native_ok` — Web Share API succeeded
+- `share_native_cancel` — user dismissed the share sheet
+- `share_native_fail` — Web Share API errored (fell back to wa.me)
+- `share_whatsapp_open` — wa.me fallback triggered
+- `name_entered` — user finished typing a name (blur event)
+- `select_quote` — user changed the quote
+- `copy_link` — user copied the greeting URL
+- `wish_viewed` — recipient opened a wish link
+- `cta_create_own` — recipient clicked the floating CTA
+
+**GTM Container:** `GTM-M4VZ3386` (loaded on both pages).
+
+---
+
+## 📁 File structure
+
+```
+webapp/
+├── index.html                 Creator/landing page
+├── wish.html                  Recipient greeting page
+├── _redirects                 CF Pages route rules (/wish → /wish.html fallback)
+├── css/style.css              All styling
+├── js/
+│   ├── data.js                CONFIG + quotes + slogans (⚠️ ad-network toggle lives here)
+│   ├── common.js              Shared helpers (GA4, confetti, chakra, share URL builder)
+│   ├── creator.js             Landing-page logic + share flow (Web Share API)
+│   ├── wish.js                Recipient-page logic
+│   └── ads.js                 Ad-network renderer (Media.net + AdSense)
+├── functions/
+│   ├── wish.js                Dynamic per-name OG for /wish (HARDENED against 1019)
+│   └── api/quote.js           Optional OpenRouter AI quote endpoint
+├── images/
+│   ├── og-default.svg         Static OG preview
+│   └── favicon.svg            Tricolor favicon
+├── robots.txt / sitemap.xml   SEO
+├── META_ADS_PLAYBOOK.md       Full Meta-ads seed-campaign brief
+└── README.md                  This file
 ```
 
-Also update the domain in: `index.html` & `wish.html` (`og:*`, `canonical`),
-`sitemap.xml`, `robots.txt`, and the card footer text if you change the domain.
+---
+
+## 🐛 Not yet implemented / nice-to-haves
+
+- **Meta Pixel** — needs your Pixel ID. Once you paste it, I'll wire the
+  `AzadiShare` custom event so Meta can build a Lookalike from actual sharers.
+- **Dynamic OG image per name** — currently the WhatsApp preview title/description
+  are dynamic per name, but the preview *image* is a static SVG. A next step is
+  `/functions/og-image.js` that renders a PNG with the user's name on the tricolor
+  card. Optional — the title alone gets 90% of the viral lift.
+- **Multi-language creator page** — add a language toggle (Hindi / Tamil / Telugu
+  / Marathi / Bengali) for the recipient page copy. Would meaningfully lift
+  share-rate in non-English tier-2/3 cities.
 
 ---
 
-## 📊 Google Analytics 4 (GA4)
-1. Create a GA4 property → copy the **Measurement ID** (`G-XXXXXXXXXX`).
-2. Paste it into `AZADI_CONFIG.ga4Id` in `js/data.js`. That's it — the snippet
-   loads automatically and tracks: `share_click`, `share_whatsapp_open`,
-   `name_entered`, `select_quote`, `copy_link`, `wish_viewed`, `cta_create_own`.
+## ⚠️ Known limitations
+
+- **AdSense is DISABLED** in the code until Aug 9. This is intentional — do NOT
+  flip it back on before Meta ads stop, or you risk your AdSense account.
+- **Media.net CID + CRIDs are placeholders** (`YOUR_MEDIANET_CID`). Ads will show
+  a labeled placeholder until you sign up at media.net and paste your IDs.
+- **AdSense approval status** — the site's `<script>` includes your AdSense
+  publisher ID `ca-pub-6861925637204828` in the config, but no `<script>` is
+  loaded while `network` is not `'adsense'`. So the site is completely
+  AdSense-inactive right now, which is what we want.
 
 ---
 
-## 💰 Ad Integration (Google AdSense / any network)
-The site is intentionally **clean & non-commercial looking** — ads are placed
-unobtrusively so you keep organic trust while maximizing eCPM/CTR.
+## 🚀 Deployment status
 
-Find the comment markers and paste your ad code inside:
-- `AD SLOT 1 (Top 320x50)` — top of both pages
-- `AD SLOT 2 (Native 300x250)` — directly under the greeting card
-- `AD SLOT 3 (Sticky bottom 320x50)` — fixed bottom bar (user-closable)
-- `AD SLOT (Interstitial)` — inside the 1.5s share modal (highest attention)
-
-For **AdSense**: add your `<script ... adsbygoogle.js?client=ca-pub-XXXX>` once
-in `<head>`, then replace each placeholder `<aside class="ad-slot ...">` inner
-content with an `<ins class="adsbygoogle" ...></ins>` unit + its `push({})`.
-> Note: AdSense requires content/traffic approval and generally a real custom
-> domain works better than `*.pages.dev` for approval.
-
----
-
-## 🔗 Dynamic WhatsApp Preview (per-name OG) — IMPORTANT
-- **Static default:** on a plain static site, OG tags are fixed. Every shared
-  link shows the same generic preview image/title. This already works.
-- **True dynamic per-name preview:** keep `/functions/wish.js` (included). It
-  runs free on Cloudflare's edge and rewrites `<title>` + `og:*` to
-  *"Rahul sent you a 15th August Greeting!"* for `/wish?name=Rahul`.
-  → After deploy, share the **`/wish?name=...`** URL (no `.html`).
-  You can switch the share link in `js/common.js → buildWishUrl()` to use `/wish`.
-
-*(Dynamic per-name OG **image** would need an image-rendering function/Worker;
-the current setup uses a shared tricolor OG image, which is fully free & fast.)*
-
----
-
-## 🤖 Optional AI Quotes (OpenRouter)
-1. Get a free OpenRouter API key.
-2. Cloudflare Pages → Settings → **Environment variables** (mark Secret):
-   - `OPENROUTER_API_KEY = sk-or-...`
-   - `OPENROUTER_MODEL = openai/gpt-4o-mini` *(optional)*
-3. Set `useAiQuotes: true` in `js/data.js`. The key stays server-side.
-   If no key is set, the app silently uses its built-in offline quote bank.
-
----
-
-## 🌐 Custom Domain + Google Search Console (SEO / organic traffic)
-- **`*.pages.dev` cannot be verified in Search Console** (you noted this) — you
-  need a domain you own.
-- **Buy a domain** → Cloudflare Pages → your project → **Custom domains** → add
-  it → Cloudflare auto-configures DNS + SSL.
-- **Search Console:** add the domain as a *Domain property* → verify via the DNS
-  TXT record (easy in Cloudflare DNS) → submit `https://yourdomain/sitemap.xml`.
-- After switching domains, update the domain string everywhere (see Configuration).
-- **GEO/local SEO** ideas baked in: descriptive title/description/keywords,
-  JSON-LD `WebApplication`, canonical, sitemap, fast <1MB load, mobile-first —
-  all ranking-friendly. Add region keywords/pages if targeting specific states.
-
----
-
-## 📁 Project Structure
-```
-index.html            Creator / landing page
-wish.html             Recipient greeting page
-css/style.css         Tricolor theme, animations, ad slots, modal, confetti
-js/data.js            CONFIG + quotes + slogans + info (edit me)
-js/common.js          Helpers: GA4, time-based wish, confetti, chakra, share URL
-js/creator.js         Landing-page logic (live preview, share flow)
-js/wish.js            Recipient-page logic
-images/og-default.svg Social share preview image
-functions/wish.js         (optional) dynamic per-name OG at /wish
-functions/api/quote.js    (optional) OpenRouter AI quote endpoint
-robots.txt, sitemap.xml   SEO
-_redirects            /wish -> /wish.html fallback
-```
-
-## 💾 Data Model
-No database. Personalization is **URL query parameters** (`?name=`, `?q=`) →
-zero server cost, zero storage, infinitely scalable on free tier.
-
----
-
-## 🔭 Not Yet Implemented / Recommended Next Steps
-- Dynamic per-name OG **image** (needs an edge image-render Worker or Satori).
-- Multiple card **themes/templates** the user can pick.
-- **Downloadable image** of the card (client-side via `html-to-image` / canvas).
-- Multi-language (Hindi/regional) toggle for wider reach.
-- Regional landing pages for GEO SEO once on a custom domain.
-- AdSense approval flow after moving to a custom domain + adding a privacy page.
-
----
-Made with 🧡🤍💚 for India · **Jai Hind!**
+- **Platform:** Cloudflare Pages
+- **Auto-deploy branch:** `main`
+- **Status:** ✅ Active
+- **Tech Stack:** Vanilla HTML/CSS/JS (no build step) + Cloudflare Pages Functions
+- **Last major update:** 2026-08-06 (Error 1019 fix + Web Share API + ad-network toggle)

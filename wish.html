@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Google Tag Manager -->
+  <!-- Google Tag Manager -->
   <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
   new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
   j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
@@ -12,11 +12,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
   <meta name="theme-color" content="#138808" />
 
-  <!-- NOTE: On a pure static site these OG tags are static (see README for the
-       optional Cloudflare Pages Function that rewrites them per ?name=). -->
+  <!-- NOTE: On a pure static site these OG tags are static. The optional
+       Cloudflare Pages Function /functions/wish.js rewrites them per ?name=
+       for /wish (no .html). Static /wish.html always works as a fallback. -->
   <title>You've received a 15th August Greeting! 🇮🇳</title>
   <meta name="description" content="Someone sent you a personalized Independence Day greeting. Open it and create your own free 15th August WhatsApp wish!" />
   <link rel="canonical" href="https://azadiwish.pages.dev/wish.html" />
+  <link rel="icon" type="image/svg+xml" href="/images/favicon.svg" />
 
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="AzadiWish" />
@@ -30,19 +32,19 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/style.css" />
+
+  <!-- Ads are loaded dynamically by js/ads.js based on AZADI_CONFIG.ads.network -->
 </head>
 <body>
-<!-- Google Tag Manager (noscript) -->
+  <!-- Google Tag Manager (noscript) -->
   <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-M4VZ3386"
   height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <!-- End Google Tag Manager (noscript) -->
+
   <div class="app">
 
     <!-- ===== Ad Slot 1: Top Banner ===== -->
-    <aside class="ad-slot ad-320x50 ad-top" aria-label="Advertisement">
-      <!-- AD SLOT 1 (Top 320x50) -->
-      Ad · 320×50
-    </aside>
+    <aside class="ad-slot ad-320x50 ad-top" data-ad-slot="top" aria-label="Advertisement"></aside>
 
     <header class="site-header">
       <div class="brand"><span class="flag">🇮🇳</span> <span class="tri">AzadiWish</span></div>
@@ -68,10 +70,7 @@
       </section>
 
       <!-- ===== Ad Slot 2: Native Banner under card ===== -->
-      <aside class="ad-slot ad-300x250" aria-label="Advertisement">
-        <!-- AD SLOT 2 (Native 300x250) -->
-        Ad · 300×250
-      </aside>
+      <aside class="ad-slot ad-300x250" data-ad-slot="inline" aria-label="Advertisement"></aside>
 
       <!-- ===== Slogan ===== -->
       <section class="slogan-banner">
@@ -100,10 +99,8 @@
   </a>
 
   <!-- ===== Ad Slot 3: Sticky Bottom ===== -->
-  <aside class="ad-slot ad-320x50 ad-sticky-bottom" id="ad-sticky" aria-label="Advertisement">
+  <aside class="ad-slot ad-320x50 ad-sticky-bottom" id="ad-sticky" data-ad-slot="sticky" aria-label="Advertisement">
     <span class="ad-close" id="sticky-ad-close" title="Close">×</span>
-    <!-- AD SLOT 3 (Sticky 320x50) -->
-    Ad · 320×50
   </aside>
 
   <canvas id="confetti-canvas" aria-hidden="true"></canvas>
@@ -111,6 +108,7 @@
 
   <script src="js/data.js"></script>
   <script src="js/common.js"></script>
+  <script src="js/ads.js"></script>
   <script src="js/wish.js"></script>
   <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 </body>
