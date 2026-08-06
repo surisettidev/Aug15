@@ -1,4 +1,9 @@
 # Cloudflare Pages redirects
-# Pretty URL for the recipient page. If functions/wish.js is present it handles
-# /wish (dynamic OG); this line is a fallback for when Functions are disabled.
-/wish   /wish.html   200
+# NOTE: We used to have `/wish  /wish.html  200` here as a fallback for when
+# Cloudflare Pages Functions were disabled. But Pages does its own canonical
+# redirect from /wish.html → /wish whenever a Function exists at /wish, and
+# together with the rewrite this created an infinite 308 loop that surfaced
+# as Cloudflare error 1019 to the user. functions/wish.js now handles /wish
+# on its own (with a safe static-asset fallback for any error), so no
+# rewrite rule is needed. Leaving this file present-but-empty so CF Pages
+# doesn't complain.
