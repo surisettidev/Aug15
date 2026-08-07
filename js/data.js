@@ -5,18 +5,36 @@
 const AZADI_CONFIG = {
   // Ad Networks Configuration
   ads: {
-    network: 'monetag', // ✅ Changed to Monetag (zone-based)
+    network: 'monetag', // ✅ Monetag zone-based ads
     
-    // Monetag Configuration (ZONE-BASED, not Publisher ID)
-    monetagPublisherId: 'YOUR_MONETAG_PUBLISHER_ID', // Get from Monetag dashboard
+    // Monetag Configuration (ZONE-BASED)
+    monetagPublisherId: '267771', // Your Monetag Publisher ID from script tag
+    
+    // ZONE STRATEGY:
+    // Primary zones (highest CPM formats):
+    // - Onclick (Popunder): $12-20 CPM — use for interstitial (modal during share)
+    // - Vignette Banner: $10-15 CPM — use for sticky bottom
+    // - In-Page Push: $5-8 CPM — use for top/inline
+    // - Push Notifications: $8-12 CPM — use for background
+    
     monetagZones: {
-      // Map each ad slot to a Monetag Zone ID
-      top: 'YOUR_MONETAG_ZONE_TOP',           // 320×50 banner
-      inline: 'YOUR_MONETAG_ZONE_INLINE',     // 300×250 rectangle
-      sticky: 'YOUR_MONETAG_ZONE_STICKY',     // 320×50 sticky
-      interstitial: 'YOUR_MONETAG_ZONE_MODAL' // 300×250 interstitial
+      // TOP SLOT (320×50): Use In-Page Push (11522574) from Pleasant tag
+      top: '11522574',
+      
+      // INLINE SLOT (300×250): Use Vignette Banner (11522575) from Pleasant tag
+      inline: '11522575',
+      
+      // STICKY BOTTOM (320×50): Reuse Vignette or use OnClick
+      // Option 1: Reuse inline vignette (11522575) — cheaper tracking
+      // Option 2: Use OnClick (11522573) — more aggressive, higher CPM
+      sticky: '11522575',
+      
+      // INTERSTITIAL/MODAL (300×250): Use OnClick Popunder (11522573)
+      // Highest CPM ($12-20), user just clicked share button = high intent
+      interstitial: '11522573'
     },
-    monetagFormat: 'Multitag', // Recommended: 'Multitag' | 'Onclick' | 'In-Page Push' | 'Vignette' | 'Banner' | 'Direct Links'
+    
+    monetagFormat: 'Multitag', // Recommended: auto-selects best format per zone
     
     // Fallback networks (for redundancy)
     propellerPubId: '3439313', // ✅ Confirmed (optional fallback)
