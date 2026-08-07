@@ -5,12 +5,22 @@
    Safe for paid (Meta) traffic — NO AdSense ban risk.
    
    RECOMMENDED NETWORKS (for paid traffic):
+     'monetag'    → Monetag (zone-based, high CPM, multiple formats)
      'propeller'  → Propeller Ads (instant approval, high CPM)
      'ezoic'      → Ezoic (AI-optimized, header bidding)
      'medianet'   → Media.net (contextual/native, complement)
      'off'        → no ads (dev / testing)
    
-   All credentials are in Cloudflare Environment Variables:
+   Monetag Format Support:
+     - 'Multitag' (all-in-one, highest revenue)
+     - 'Onclick' (popunder, high CPM, 100% fill rate)
+     - 'In-Page Push' (banner-like, UX-friendly)
+     - 'Vignette' (native-like, 65% higher CPM)
+     - 'Banner/Native' (standard display ads)
+     - 'Direct Links' (clickable ad units)
+   
+   All credentials in Cloudflare Environment Variables:
+   - CF_MONETAG_PUBLISHER_ID (your Monetag publisher ID)
    - CF_PROPELLER_PUB_ID
    - CF_EZOIC_SITE_ID
    - CF_MEDIANET_CID
@@ -25,10 +35,63 @@
 (function () {
   var cfg = (window.AZADI_CONFIG && window.AZADI_CONFIG.ads) || {};
   var network = cfg.network || 'off';
-  var loaded = { propeller: false, ezoic: false, medianet: false, adsense: false };
+  var loaded = { monetag: false, propeller: false, ezoic: false, medianet: false, adsense: false };
 
   function log(msg) {
     if (window.console && console.info) console.info('[AzadiAds]', msg);
+  }
+
+  // ---------- Monetag loader ----------
+  function loadMonetag() {
+    if (loaded.monetag || !cfg.monetagPublisherId || cfg.monetagPublisherId.indexOf('YOUR_') === 0) return;
+    loaded.monetag = true;
+    var s = document.createElement('script');
+    s.async = true;
+    s.src = 'https://cdn.monetag.com/tags/' + encodeURIComponent(cfg.monetagPublisherId) + '.js';
+    s.crossOrigin = 'anonymous';
+    document.head.appendChild(s);
+    log('Monetag loader injected: ' + cfg.monetagPublisherId);
+  }
+
+  function renderMonetag(container, slotKey) {
+    if (!cfg.monetagPublisherId || cfg.monetagPublisherId.indexOf('YOUR_') === 0) {
+      showPlaceholder(container, 'Monetag (add PUBLISHER_ID in config)');
+      return;
+    }
+    
+    var zoneId = cfg.monetagZones && cfg.monetagZones[slotKey];
+    if (!zoneId || zoneId.indexOf('YOUR_') === 0) {
+      showPlaceholder(container, 'Monetag zone ' + slotKey + ' not configured');
+      return;
+    }
+
+    // Monetag Multitag format (recommended for all-in-one monetization)
+    var divId = 'monetag_' + slotKey + '_' + Math.random().toString(36).slice(2, 8);
+    var div = document.createElement('div');
+    div.id = divId;
+    div.className = 'monetag-ad-slot';
+    container.appendChild(div);
+
+    try {
+      if (typeof window.monetag !== 'undefined' && typeof window.monetag.render === 'function') {
+        window.monetag.render(divId, {
+          publisherId: cfg.monetagPublisherId,
+          zoneId: zoneId,
+          format: cfg.monetagFormat || 'Multitag'  // Default to Multitag (highest CPM)
+        });
+      } else if (typeof window.MONETAG !== 'undefined') {
+        // Alternative Monetag API
+        window.MONETAG.render(divId, zoneId);
+      } else {
+        // Fallback: inline render call via script
+        var s = document.createElement('script');
+        s.async = true;
+        s.innerHTML = 'if(typeof monetag!=="undefined") monetag.render("' + divId + '");';
+        container.appendChild(s);
+      }
+    } catch (e) {
+      log('Monetag render failed: ' + e.message);
+    }
   }
 
   // ---------- Propeller Ads loader ----------
@@ -206,6 +269,7 @@
     log('Ad network: ' + network);
 
     // Load network scripts based on selected network
+    if (network === 'monetag') loadMonetag();
     if (network === 'propeller') loadPropeller();
     if (network === 'ezoic') loadEzoic();
     if (network === 'medianet') loadMediaNet();
@@ -218,7 +282,9 @@
       // Clear any pre-existing placeholder text
       el.textContent = '';
 
-      if (network === 'propeller') {
+      if (network === 'monetag') {
+        renderMonetag(el, slotKey);
+      } else if (network === 'propeller') {
         renderPropeller(el, slotKey);
       } else if (network === 'ezoic') {
         renderEzoic(el, slotKey);

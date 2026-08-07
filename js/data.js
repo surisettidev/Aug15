@@ -5,8 +5,21 @@
 const AZADI_CONFIG = {
   // Ad Networks Configuration
   ads: {
-    network: 'propeller',
-    propellerPubId: '3439313', // ✅ Confirmed
+    network: 'monetag', // ✅ Changed to Monetag (zone-based)
+    
+    // Monetag Configuration (ZONE-BASED, not Publisher ID)
+    monetagPublisherId: 'YOUR_MONETAG_PUBLISHER_ID', // Get from Monetag dashboard
+    monetagZones: {
+      // Map each ad slot to a Monetag Zone ID
+      top: 'YOUR_MONETAG_ZONE_TOP',           // 320×50 banner
+      inline: 'YOUR_MONETAG_ZONE_INLINE',     // 300×250 rectangle
+      sticky: 'YOUR_MONETAG_ZONE_STICKY',     // 320×50 sticky
+      interstitial: 'YOUR_MONETAG_ZONE_MODAL' // 300×250 interstitial
+    },
+    monetagFormat: 'Multitag', // Recommended: 'Multitag' | 'Onclick' | 'In-Page Push' | 'Vignette' | 'Banner' | 'Direct Links'
+    
+    // Fallback networks (for redundancy)
+    propellerPubId: '3439313', // ✅ Confirmed (optional fallback)
     ezoicSiteId: null, // ⚠️ Skipped - custom domain required
     medianetCid: null, // Optional fallback
     adsenseClient: null // Kept for backward compatibility
