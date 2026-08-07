@@ -34,8 +34,10 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/style.css" />
 
-  <!-- Monetag ad network script (required for zone-based ads) -->
-  <script src="https://quge5.com/88/tag.min.js" data-zone="267771" async data-cfasync="false"></script>
+  <!-- Monetag ad network script (MANUAL rendering mode - no auto-render) -->
+  <!-- data-manual="true" tells Monetag NOT to auto-render zones -->
+  <!-- Our js/ads.js will render zones into specific slots -->
+  <script src="https://quge5.com/88/tag.min.js" data-manual="true" async data-cfasync="false"></script>
 
   <!-- Ads are loaded dynamically by js/ads.js based on AZADI_CONFIG.ads.network -->
 

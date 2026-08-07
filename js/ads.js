@@ -60,37 +60,53 @@
     }
     
     var zoneId = cfg.monetagZones && cfg.monetagZones[slotKey];
-    if (!zoneId || zoneId.indexOf('YOUR_') === 0) {
+    if (!zoneId || zoneId.toString().indexOf('YOUR_') === 0) {
       showPlaceholder(container, 'Monetag zone ' + slotKey + ' not configured');
       return;
     }
 
-    // Monetag Multitag format (recommended for all-in-one monetization)
+    // Convert zone ID to string if it's a number
+    zoneId = zoneId.toString();
+
+    // Create unique container for this zone
     var divId = 'monetag_' + slotKey + '_' + Math.random().toString(36).slice(2, 8);
     var div = document.createElement('div');
     div.id = divId;
     div.className = 'monetag-ad-slot';
+    div.setAttribute('data-zone', zoneId);
+    div.style.minHeight = (slotKey === 'inline' || slotKey === 'interstitial') ? '250px' : '50px';
     container.appendChild(div);
 
+    // Use Monetag's render function with manual mode
+    // Monetag exposes window.queueNewTag for manual zone rendering
     try {
-      if (typeof window.monetag !== 'undefined' && typeof window.monetag.render === 'function') {
-        window.monetag.render(divId, {
-          publisherId: cfg.monetagPublisherId,
-          zoneId: zoneId,
-          format: cfg.monetagFormat || 'Multitag'  // Default to Multitag (highest CPM)
+      if (typeof window.queueNewTag === 'function') {
+        // New Monetag API - queue the tag for rendering
+        window.queueNewTag({
+          zone: parseInt(zoneId),
+          container: divId
         });
-      } else if (typeof window.MONETAG !== 'undefined') {
-        // Alternative Monetag API
-        window.MONETAG.render(divId, zoneId);
+        log('Monetag zone queued: ' + zoneId + ' in container: ' + divId);
+      } else if (typeof window.monetag !== 'undefined' && typeof window.monetag.render === 'function') {
+        // Alternative Monetag render API
+        window.monetag.render(divId, zoneId);
+        log('Monetag zone rendered: ' + zoneId);
       } else {
-        // Fallback: inline render call via script
-        var s = document.createElement('script');
-        s.async = true;
-        s.innerHTML = 'if(typeof monetag!=="undefined") monetag.render("' + divId + '");';
-        container.appendChild(s);
+        // Fallback: create script tag for manual rendering
+        var tagScript = document.createElement('script');
+        tagScript.innerHTML = '(function(){' +
+          'if(typeof queueNewTag === "function") {' +
+            'queueNewTag({zone: ' + parseInt(zoneId) + ', container: "' + divId + '"});' +
+          '} else if (typeof monetag !== "undefined" && typeof monetag.render === "function") {' +
+            'monetag.render("' + divId + '", ' + parseInt(zoneId) + ');' +
+          '}' +
+        '})();';
+        container.appendChild(tagScript);
+        log('Monetag fallback script injected for zone: ' + zoneId);
       }
     } catch (e) {
-      log('Monetag render failed: ' + e.message);
+      log('Monetag render error: ' + e.message);
+      showPlaceholder(container, 'Monetag render failed');
     }
   }
 
