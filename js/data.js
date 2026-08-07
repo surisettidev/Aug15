@@ -1,127 +1,160 @@
-/* ============================================================
-   AzadiWish — shared data (quotes, slogans, info, config)
-   ============================================================ */
+// AzadiWish - Updated Configuration
+// Updated: Aug 6, 2026
+// Status: Ready for production with EarnKaro workaround
 
-// ---- CONFIG: edit these when deploying ----
-window.AZADI_CONFIG = {
-  siteName: 'AzadiWish',
-  // Set this to your live domain after deploy (no trailing slash).
-  // Leave blank to auto-detect from window.location.origin.
-  baseUrl: 'https://azadiwish.pages.dev',
-  independenceYear: 2026,        // display year on the card (update yearly)
-  independenceDateISO: '2026-08-15T00:00:00+05:30', // IST midnight of Aug 15
-  // Optional: set to true only if you deploy the Cloudflare Pages Function
-  // at /api/quote (OpenRouter). Otherwise the offline quote bank is used.
-  useAiQuotes: false,
-  ga4Id: 'G-TPF23RP7M3',         // GA4 Measurement ID
-
-  /* =========================================================
-     AD NETWORK CONFIG  —  single-flag toggle
-     ---------------------------------------------------------
-     MONETIZATION STRATEGY (Non-Intrusive + Affiliate):
-     
-     'propeller' = Propeller Ads (safe with paid traffic)
-     'ezoic'     = Ezoic (header bidding, works with paid)
-     'medianet'  = Media.net only (contextual/native)
-     'off'       = no ads (testing)
-     
-     All secrets are stored in Cloudflare Environment Variables:
-     - PROPELLER_PUB_ID
-     - EZOIC_SITE_ID
-     - MEDIANET_CID
-     ========================================================= */
+const AZADI_CONFIG = {
+  // Ad Networks Configuration
   ads: {
-    network: 'propeller',  // <-- PRIMARY: Propeller Ads
-    propellerPubId: 'YOUR_PROPELLER_PUB_ID',  // From Cloudflare env
-    propellerCode: 'YOUR_PROPELLER_CODE',      // JavaScript snippet ID
-    
-    ezoicSiteId: 'YOUR_EZOIC_SITE_ID',        // For optional dual-network
-    
-    medianetCid: 'YOUR_MEDIANET_CID',          // Contextual fallback
-    medianetSlots: {
-      top:          'YOUR_MEDIANET_CRID_TOP',
-      inline:       'YOUR_MEDIANET_CRID_INLINE',
-      sticky:       'YOUR_MEDIANET_CRID_STICKY',
-      interstitial: 'YOUR_MEDIANET_CRID_INTERSTITIAL'
-    }
+    network: 'propeller',
+    propellerPubId: '3439313', // ✅ Confirmed
+    ezoicSiteId: null, // ⚠️ Skipped - custom domain required
+    medianetCid: null, // Optional fallback
+    adsenseClient: null // Kept for backward compatibility
   },
 
-  /* =========================================================
-     AFFILIATE CONFIG — Non-intrusive monetization
-     ---------------------------------------------------------
-     Affiliate links placed contextually (not intrusive):
-     - After greeting creation
-     - Footer recommendations
-     - Non-obtrusive & relevant to user journey
-     ========================================================= */
+  // Affiliate Networks - Updated Strategy
   affiliates: {
     flipkart: {
-      trackingId: 'YOUR_FLIPKART_AFFILIATE_ID',
-      // Base URL for Flipkart affiliate links
-      baseUrl: 'https://flipkart.affiliate.link'
+      // ✅ Using EarnKaro workaround (Flipkart registration paused)
+      isEarnkaro: true,
+      provider: 'earnkaro',
+      name: 'Flipkart',
+      description: 'Flags, merchandise, gifts',
+      link: 'https://fktr.in/JkfpqlU-flipkart', // EarnKaro shortened URL
+      icon: '🛍️',
+      buttonClass: 'flipkart-btn',
+      commissionNote: '5-20% via EarnKaro'
     },
+
+    myntra: {
+      // ✅ Using EarnKaro workaround
+      isEarnkaro: true,
+      provider: 'earnkaro',
+      name: 'Myntra',
+      description: 'Independence Day apparel & fashion',
+      link: 'https://myntr.it/5S2JaJ9-myntra', // EarnKaro shortened URL
+      icon: '👕',
+      buttonClass: 'myntra-btn',
+      commissionNote: '5-15% via EarnKaro'
+    },
+
     amazon: {
-      trackingTag: 'YOUR_AMAZON_ASSOCIATE_TAG',  // From Amazon Associates
-      baseUrl: 'https://amazon.in/s'
+      // ✅ Amazon Associates Tag Confirmed
+      isEarnkaro: false,
+      provider: 'amazon',
+      name: 'Amazon',
+      description: 'Cards, party supplies, decorations',
+      trackingTag: 'vj0706-21', // User's tag
+      baseUrl: 'https://amazon.in/s?k=independence+day&tag=vj0706-21',
+      icon: '📦',
+      buttonClass: 'amazon-btn',
+      commissionNote: '1-10% commission'
     },
+
     fnp: {
-      campaignUrl: 'https://www.fnp.com/?utm_source=azadiwish&utm_medium=affiliate&utm_campaign=indday'
+      // ✅ FNP Campaign URL
+      isEarnkaro: false,
+      provider: 'fnp',
+      name: 'FNP Gifts',
+      description: 'Gift hampers & same-day delivery',
+      campaignUrl: 'https://www.fnp.com/?utm_source=azadiwish&utm_medium=affiliate',
+      icon: '🎁',
+      buttonClass: 'fnp-btn',
+      commissionNote: '10-15% commission'
     }
   },
 
-  /* =========================================================
-     CONVERSION TRACKING — Affiliate & Ad Performance
-     ========================================================= */
+  // Tracking Configuration
   tracking: {
-    trackAffiliateClicks: true,  // Track when users click affiliate links
-    trackAdImpressions: true,     // Track ad load events
-    trackConversions: true,       // Track affiliate conversions (pixel-based)
+    // Google Analytics 4
+    ga4MeasurementId: 'G-TPF23RP7M3',
+    
+    // Event Tracking
+    trackAffiliateClicks: true,
+    trackAdImpressions: true,
+    trackConversions: true,
+    
+    // GTM Setup
+    gtmId: 'GTM-M4VZ3386',
+    
+    // Conversion Pixels (optional)
     conversionPixels: {
-      flipkart: 'YOUR_FLIPKART_PIXEL_ID',
-      amazon: 'YOUR_AMAZON_PIXEL_ID',
-      fnp: 'YOUR_FNP_PIXEL_ID'
+      flipkart: null, // EarnKaro tracks
+      amazon: null, // Amazon tracks
+      fnp: null // FNP tracks
     }
+  },
+
+  // Feature Flags
+  features: {
+    useEarnkaroRedirect: true, // Enable EarnKaro link handling
+    useAiQuotes: false, // Disable for now
+    enableEzoic: false, // Skipped - custom domain required
+    debugMode: false // Set to true for console logs
+  },
+
+  // UI Configuration
+  ui: {
+    affiliateSection: {
+      title: '🎉 Make Your Celebration Special',
+      description: 'Shop for Independence Day essentials',
+      position: 'after-greeting', // after user enters greeting
+      layout: 'grid', // grid or carousel
+      columns: 'auto-fit' // responsive columns
+    },
+    colors: {
+      primary: '#FF9933', // Saffron
+      secondary: '#138808', // Green
+      accent: '#FFFFFF' // White
+    }
+  },
+
+  // Monitoring & Debug
+  monitoring: {
+    enableConsoleLogs: false,
+    enableDebugPanel: false,
+    trackPageMetrics: true
   }
 };
 
-// ---- Patriotic quotes (offline bank, zero-cost default) ----
-window.AZADI_QUOTES = [
-  { text: "Freedom is not given, it is taken.", author: "Netaji Subhas Chandra Bose" },
-  { text: "Give me blood, and I shall give you freedom!", author: "Netaji Subhas Chandra Bose" },
-  { text: "In a gentle way, you can shake the world.", author: "Mahatma Gandhi" },
-  { text: "Be the change you wish to see in the world.", author: "Mahatma Gandhi" },
-  { text: "A nation's culture resides in the hearts and soul of its people.", author: "Mahatma Gandhi" },
-  { text: "Where the mind is without fear and the head is held high.", author: "Rabindranath Tagore" },
-  { text: "We are Indians, firstly and lastly.", author: "B. R. Ambedkar" },
-  { text: "Dream is not that which you see while sleeping, it is something that does not let you sleep.", author: "Dr. A.P.J. Abdul Kalam" },
-  { text: "Sare Jahan Se Achha, Hindustan Hamara.", author: "Muhammad Iqbal" },
-  { text: "The sanctity of law can be maintained only so long as it is the expression of the will of the people.", author: "Bhagat Singh" },
-  { text: "Ask not what your country can do for you — serve her with pride.", author: "Unknown" },
-  { text: "One individual may die for an idea, but that idea will, after his death, incarnate itself in a thousand lives.", author: "Netaji Subhas Chandra Bose" }
-];
+// Helper function to get affiliate link
+function getAffiliateLink(affiliateKey) {
+  const affiliate = AZADI_CONFIG.affiliates[affiliateKey];
+  
+  if (!affiliate) {
+    console.warn(`Affiliate ${affiliateKey} not found`);
+    return null;
+  }
 
-// ---- Slogans (rotating pride banner) ----
-window.AZADI_SLOGANS = [
-  { slogan: "Jai Hind! 🇮🇳", sub: "Victory to India" },
-  { slogan: "Vande Mataram", sub: "I bow to thee, Motherland" },
-  { slogan: "Har Ghar Tiranga", sub: "A tricolour in every home" },
-  { slogan: "Inquilab Zindabad", sub: "Long live the revolution" },
-  { slogan: "Sare Jahan Se Achha", sub: "Better than the whole world, our India" }
-];
+  // EarnKaro links are direct
+  if (affiliate.isEarnkaro) {
+    return affiliate.link;
+  }
 
-// ---- Why Independence Day is celebrated ----
-window.AZADI_INFO = {
-  title: "Why we celebrate 15th August",
-  html: `
-    <p>On <strong>15th August 1947</strong>, India won freedom after nearly 200 years
-    of British colonial rule. At the stroke of the midnight hour, India awoke to
-    <strong>life and freedom</strong> — a moment immortalised by Pandit Jawaharlal Nehru's
-    famous <em>"Tryst with Destiny"</em> speech.</p>
-    <p>Every year we honour the countless freedom fighters — Gandhi, Bhagat Singh,
-    Netaji, Rani Lakshmibai, and millions of unsung heroes — whose sacrifice gave us
-    our <strong>tiranga</strong>, our democracy, and our voice.</p>
-    <p>The three colours stand for <strong>courage (saffron)</strong>,
-    <strong>peace &amp; truth (white)</strong>, and <strong>faith &amp; prosperity (green)</strong>,
-    with the <strong>Ashoka Chakra</strong> representing the eternal wheel of righteousness (dharma).</p>
-  `
-};
+  // Amazon - build with tag
+  if (affiliate.provider === 'amazon') {
+    return affiliate.baseUrl;
+  }
+
+  // FNP - use campaign URL
+  if (affiliate.provider === 'fnp') {
+    return affiliate.campaignUrl;
+  }
+
+  return null;
+}
+
+// Helper to check if affiliate is active
+function isAffiliateActive(affiliateKey) {
+  const affiliate = AZADI_CONFIG.affiliates[affiliateKey];
+  return affiliate && affiliate.link;
+}
+
+// Export for use in other files
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    AZADI_CONFIG,
+    getAffiliateLink,
+    isAffiliateActive
+  };
+}

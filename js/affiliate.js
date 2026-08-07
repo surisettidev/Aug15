@@ -1,203 +1,271 @@
-/* ============================================================
-   AzadiWish — Affiliate Link Manager
-   Non-intrusive affiliate tracking for Flipkart, Amazon, FNP
-   ============================================================ */
+// AzadiWish - Affiliate Link Manager
+// Updated: Aug 6, 2026
+// Status: Handles EarnKaro workaround + other affiliates
 
-(function () {
-  var cfg = (window.AZADI_CONFIG && window.AZADI_CONFIG.affiliates) || {};
-  var trackingCfg = (window.AZADI_CONFIG && window.AZADI_CONFIG.tracking) || {};
+(function() {
+  'use strict';
 
-  function log(msg) {
-    if (window.console && console.info) console.info('[AzadiAffiliate]', msg);
-  }
+  // Configuration from data.js
+  const cfg = window.AZADI_CONFIG || {};
+  const tracking = cfg.tracking || {};
+  const affiliates = cfg.affiliates || {};
 
-  // Track affiliate link click
-  function trackAffiliateClick(affiliate, productCategory) {
-    if (!trackingCfg.trackAffiliateClicks) return;
+  // ============================================
+  // AFFILIATE CLICK HANDLER
+  // ============================================
+  
+  function trackAffiliateClick(affiliateKey) {
+    const affiliate = affiliates[affiliateKey];
     
-    try {
-      if (typeof window.gtag === 'function') {
-        window.gtag('event', 'affiliate_click', {
-          'affiliate': affiliate,
-          'product_category': productCategory || 'general'
-        });
+    if (!affiliate) {
+      console.error(`Affiliate ${affiliateKey} not found in config`);
+      return;
+    }
+
+    // Fire GTM event
+    if (tracking.trackAffiliateClicks && window.gtag) {
+      gtag('event', 'affiliate_click', {
+        affiliate_name: affiliate.name,
+        affiliate_provider: affiliate.provider,
+        affiliate_key: affiliateKey,
+        is_earnkaro: affiliate.isEarnkaro ? 'yes' : 'no',
+        timestamp: new Date().toISOString()
+      });
+
+      if (cfg.monitoring?.enableConsoleLogs) {
+        console.log(`[GTM Event] Affiliate click: ${affiliate.name}`);
       }
-    } catch (e) {
-      log('GTM tracking failed: ' + e.message);
     }
 
-    // Fire conversion pixel (optional, if configured)
-    if (trackingCfg.conversionPixels && trackingCfg.conversionPixels[affiliate]) {
-      fireConversionPixel(trackingCfg.conversionPixels[affiliate]);
-    }
-  }
-
-  // Fire conversion pixel for affiliate network
-  function fireConversionPixel(pixelId) {
-    if (!pixelId || pixelId.indexOf('YOUR_') === 0) return;
-    
-    try {
-      var img = new Image();
-      img.src = 'https://pixel.affiliate-network.com/track?id=' + encodeURIComponent(pixelId) + '&t=' + Date.now();
-      img.style.display = 'none';
-      document.body.appendChild(img);
-    } catch (e) {
-      log('Pixel firing failed: ' + e.message);
+    // Fire standard event for analytics
+    if (window.gtag) {
+      gtag('event', 'view_item', {
+        items: [{
+          item_id: affiliateKey,
+          item_name: affiliate.name,
+          item_category: 'affiliate_link'
+        }]
+      });
     }
   }
 
-  // Build Flipkart affiliate link
-  function buildFlipkartLink(category, searchTerm) {
-    var baseUrl = cfg.flipkart && cfg.flipkart.baseUrl;
-    var trackingId = cfg.flipkart && cfg.flipkart.trackingId;
+  // ============================================
+  // REDIRECT HANDLER
+  // ============================================
+
+  function handleAffiliateRedirect(affiliateKey) {
+    const affiliate = affiliates[affiliateKey];
     
-    if (!baseUrl || !trackingId || trackingId.indexOf('YOUR_') === 0) return null;
+    if (!affiliate || !affiliate.link) {
+      console.warn(`No link found for ${affiliateKey}`);
+      alert(`${affiliate?.name || 'Affiliate'} is not available right now. Please try again.`);
+      return;
+    }
+
+    // Track the click
+    trackAffiliateClick(affiliateKey);
+
+    // Small delay to ensure tracking fires before redirect
+    const link = affiliate.link;
     
-    var params = new URLSearchParams();
-    params.append('query', searchTerm || category || 'independence day gifts');
-    params.append('affid', trackingId);
-    
-    return baseUrl + '/[YOUR-ID]?' + params.toString();
+    if (cfg.monitoring?.enableConsoleLogs) {
+      console.log(`[Affiliate] Redirecting to ${affiliate.name}: ${link}`);
+    }
+
+    setTimeout(() => {
+      // Open in new tab to prevent losing page context
+      window.open(link, '_blank');
+    }, 100);
   }
 
-  // Build Amazon affiliate link
-  function buildAmazonLink(searchTerm) {
-    var baseUrl = cfg.amazon && cfg.amazon.baseUrl;
-    var tag = cfg.amazon && cfg.amazon.trackingTag;
-    
-    if (!baseUrl || !tag || tag.indexOf('YOUR_') === 0) return null;
-    
-    var params = new URLSearchParams();
-    params.append('k', searchTerm || 'independence day gifts');
-    params.append('tag', tag);
-    
-    return baseUrl + '?' + params.toString();
-  }
+  // ============================================
+  // BUILD AFFILIATE SECTION UI
+  // ============================================
 
-  // Build FNP affiliate link
-  function buildFnpLink() {
-    var url = cfg.fnp && cfg.fnp.campaignUrl;
-    return (url && url.indexOf('YOUR_') === -1) ? url : null;
-  }
-
-  // Inject affiliate recommendation section (after greeting card)
   function injectAffiliateSection() {
-    var existingSection = document.getElementById('affiliate-recommendations');
-    if (existingSection) return; // Already injected
+    // Find greeting section
+    const greetingSection = document.querySelector('.greeting-section') || 
+                           document.querySelector('[data-section="greeting"]') ||
+                           document.querySelector('section');
 
-    var cardWrap = document.querySelector('.card-wrap');
-    if (!cardWrap) return;
+    if (!greetingSection) {
+      if (cfg.monitoring?.enableConsoleLogs) {
+        console.warn('[Affiliate] Greeting section not found');
+      }
+      return;
+    }
 
-    var section = document.createElement('section');
-    section.id = 'affiliate-recommendations';
-    section.className = 'affiliate-recommendations';
-    section.innerHTML = `
-      <div class="affiliate-container">
-        <h3 class="affiliate-title">🎁 Make Your Celebration Special</h3>
-        <div class="affiliate-cards">
-          
-          <!-- FLIPKART CARD -->
-          <div class="affiliate-card">
-            <h4>Patriotic Merchandise & Gifts</h4>
-            <p>Tricolor apparel, flags, and Independence Day gifts</p>
-            <a class="affiliate-btn flipkart-btn" href="#" target="_blank" rel="noopener noreferrer">
-              Shop on Flipkart →
-            </a>
-          </div>
+    // Check if already injected
+    if (document.getElementById('affiliate-recommendations')) {
+      return;
+    }
 
-          <!-- AMAZON CARD -->
-          <div class="affiliate-card">
-            <h4>Greeting Card Printing Services</h4>
-            <p>Print your custom greeting cards professionally</p>
-            <a class="affiliate-btn amazon-btn" href="#" target="_blank" rel="noopener noreferrer">
-              Browse on Amazon →
-            </a>
-          </div>
-
-          <!-- FNP CARD -->
-          <div class="affiliate-card">
-            <h4>Gift Delivery Services</h4>
-            <p>Send gifts to your loved ones on Independence Day</p>
-            <a class="affiliate-btn fnp-btn" href="#" target="_blank" rel="noopener noreferrer">
-              Gift Now →
-            </a>
-          </div>
-
+    // Create affiliate section
+    const affiliateHtml = `
+      <div id="affiliate-recommendations" class="affiliate-recommendations">
+        <div class="affiliate-header">
+          <h3>🎉 Make Your Celebration Special</h3>
+          <p>Shop for Independence Day essentials</p>
         </div>
-        <p class="affiliate-disclosure">
-          💡 These are affiliate recommendations. We earn a small commission when you make a purchase through these links.
-        </p>
+        
+        <div class="affiliate-cards" id="affiliate-cards-container">
+          <!-- Cards will be injected here -->
+        </div>
+
+        <div class="affiliate-disclosure">
+          <small>
+            💡 Tip: We earn a small commission when you shop through these links at no extra cost to you.
+            This helps us maintain and improve this free tool!
+          </small>
+        </div>
       </div>
     `;
 
-    cardWrap.parentNode.insertBefore(section, cardWrap.nextSibling);
-    attachAffiliateEventListeners();
+    // Insert after greeting section
+    const insertionPoint = greetingSection.nextElementSibling;
+    if (insertionPoint) {
+      insertionPoint.insertAdjacentHTML('beforebegin', affiliateHtml);
+    } else {
+      greetingSection.insertAdjacentHTML('afterend', affiliateHtml);
+    }
+
+    // Populate affiliate cards
+    renderAffiliateCards();
   }
 
-  // Attach click handlers to affiliate links
-  function attachAffiliateEventListeners() {
-    var flipkartLink = document.querySelector('.flipkart-btn');
-    var amazonLink = document.querySelector('.amazon-btn');
-    var fnpLink = document.querySelector('.fnp-btn');
+  // ============================================
+  // RENDER AFFILIATE CARDS
+  // ============================================
 
-    if (flipkartLink) {
-      var fpLink = buildFlipkartLink('patriotic merchandise', 'independence day tricolor gifts');
-      if (fpLink) {
-        flipkartLink.href = fpLink;
-        flipkartLink.addEventListener('click', function () {
-          trackAffiliateClick('flipkart', 'merchandise');
-        });
-      } else {
-        flipkartLink.style.opacity = '0.6';
-        flipkartLink.style.cursor = 'not-allowed';
-        flipkartLink.title = 'Affiliate ID not configured';
+  function renderAffiliateCards() {
+    const container = document.getElementById('affiliate-cards-container');
+    
+    if (!container) {
+      if (cfg.monitoring?.enableConsoleLogs) {
+        console.warn('[Affiliate] Cards container not found');
       }
+      return;
     }
 
-    if (amazonLink) {
-      var amzLink = buildAmazonLink('greeting cards independence day');
-      if (amzLink) {
-        amazonLink.href = amzLink;
-        amazonLink.addEventListener('click', function () {
-          trackAffiliateClick('amazon', 'greeting_cards');
-        });
-      } else {
-        amazonLink.style.opacity = '0.6';
-        amazonLink.style.cursor = 'not-allowed';
-        amazonLink.title = 'Affiliate tag not configured';
-      }
+    // Get active affiliates in order
+    const affiliateOrder = ['flipkart', 'myntra', 'amazon', 'fnp'];
+    const activeAffiliates = affiliateOrder.filter(key => {
+      const aff = affiliates[key];
+      return aff && aff.link;
+    });
+
+    // Create card HTML for each affiliate
+    const cardsHtml = activeAffiliates.map(key => {
+      const aff = affiliates[key];
+      const earnkaroNote = aff.isEarnkaro ? ' (via EarnKaro)' : '';
+      
+      return `
+        <div class="affiliate-card" data-affiliate="${key}">
+          <div class="affiliate-card-header">
+            <span class="affiliate-icon">${aff.icon}</span>
+            <h4>${aff.name}</h4>
+          </div>
+          
+          <p class="affiliate-description">${aff.description}</p>
+          
+          <p class="affiliate-commission">
+            <small>💰 ${aff.commissionNote}${earnkaroNote}</small>
+          </p>
+          
+          <button 
+            class="affiliate-btn ${aff.buttonClass}" 
+            onclick="window.handleAffiliateRedirect('${key}')"
+            title="Shop on ${aff.name}"
+          >
+            Shop Now
+          </button>
+        </div>
+      `;
+    }).join('');
+
+    // If no affiliates are active, show message
+    if (activeAffiliates.length === 0) {
+      container.innerHTML = `
+        <div class="affiliate-placeholder">
+          <p>Affiliate links are being set up. Please check back soon!</p>
+        </div>
+      `;
+      return;
     }
 
-    if (fnpLink) {
-      var fnpUrl = buildFnpLink();
-      if (fnpUrl) {
-        fnpLink.href = fnpUrl;
-        fnpLink.addEventListener('click', function () {
-          trackAffiliateClick('fnp', 'gift_delivery');
-        });
-      } else {
-        fnpLink.style.opacity = '0.6';
-        fnpLink.style.cursor = 'not-allowed';
-        fnpLink.title = 'FNP affiliate URL not configured';
-      }
-    }
+    container.innerHTML = cardsHtml;
 
-    log('Affiliate links attached');
+    if (cfg.monitoring?.enableConsoleLogs) {
+      console.log(`[Affiliate] Rendered ${activeAffiliates.length} affiliate cards`);
+    }
   }
 
-  // Public API
-  window.AzadiAffiliate = {
-    init: injectAffiliateSection,
-    trackClick: trackAffiliateClick,
-    buildFlipkartLink: buildFlipkartLink,
-    buildAmazonLink: buildAmazonLink,
-    buildFnpLink: buildFnpLink
-  };
+  // ============================================
+  // INITIALIZATION
+  // ============================================
 
-  // Auto-init when DOM ready
+  function init() {
+    // Check if config exists
+    if (!cfg || Object.keys(cfg).length === 0) {
+      console.warn('[Affiliate] AZADI_CONFIG not found. Make sure data.js is loaded first.');
+      return;
+    }
+
+    // Inject section after page loads
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', injectAffiliateSection);
+    } else {
+      injectAffiliateSection();
+    }
+
+    if (cfg.monitoring?.enableConsoleLogs) {
+      console.log('[Affiliate] Initialization complete');
+    }
+  }
+
+  // ============================================
+  // PUBLIC API (Global scope)
+  // ============================================
+
+  window.handleAffiliateRedirect = handleAffiliateRedirect;
+  window.trackAffiliateClick = trackAffiliateClick;
+  window.renderAffiliateCards = renderAffiliateCards;
+
+  // ============================================
+  // START
+  // ============================================
+
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', injectAffiliateSection);
+    document.addEventListener('DOMContentLoaded', init);
   } else {
-    injectAffiliateSection();
+    init();
   }
+
 })();
+
+// ============================================
+// MONITORING & DEBUG
+// ============================================
+
+// Log affiliate status on page load
+window.addEventListener('load', function() {
+  const cfg = window.AZADI_CONFIG || {};
+  
+  if (!cfg.monitoring?.enableConsoleLogs) return;
+
+  console.group('[Affiliate Debug Info]');
+  console.log('Config loaded:', !!cfg.affiliates);
+  console.log('Tracking enabled:', cfg.tracking?.trackAffiliateClicks);
+  
+  Object.entries(cfg.affiliates || {}).forEach(([key, aff]) => {
+    console.log(`${key}:`, {
+      active: !!aff.link,
+      isEarnkaro: aff.isEarnkaro,
+      provider: aff.provider,
+      link: aff.link?.substring(0, 50) + '...'
+    });
+  });
+  
+  console.log('Affiliate cards injected:', !!document.getElementById('affiliate-recommendations'));
+  console.groupEnd();
+});
