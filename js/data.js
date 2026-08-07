@@ -18,40 +18,68 @@ window.AZADI_CONFIG = {
   /* =========================================================
      AD NETWORK CONFIG  —  single-flag toggle
      ---------------------------------------------------------
-     Because we're running Meta Ads Aug 7–9 (paid traffic),
-     Google AdSense is DISABLED during that window to avoid
-     any "invalid traffic / policy violation" risk that can
-     get the AdSense account banned. Media.net serves ads in
-     that window instead. On Aug 9 (when Meta ads stop and
-     traffic is 100% organic viral WhatsApp shares), flip
-     `network` back to 'adsense'. That's the only change.
-     ---------------------------------------------------------
-     'medianet' = show Media.net only  (Aug 6 → Aug 9)
-     'adsense'  = show Google AdSense only  (Aug 9 onwards)
-     'auto'     = show AdSense if it fills, else Media.net
-                  (use ONLY after AdSense is approved AND
-                   Meta ads are OFF — dual-network fallback)
-     'off'      = no ads at all (testing)
+     MONETIZATION STRATEGY (Non-Intrusive + Affiliate):
+     
+     'propeller' = Propeller Ads (safe with paid traffic)
+     'ezoic'     = Ezoic (header bidding, works with paid)
+     'medianet'  = Media.net only (contextual/native)
+     'off'       = no ads (testing)
+     
+     All secrets are stored in Cloudflare Environment Variables:
+     - PROPELLER_PUB_ID
+     - EZOIC_SITE_ID
+     - MEDIANET_CID
      ========================================================= */
   ads: {
-    network: 'medianet',                                  // <-- FLIP TO 'adsense' AFTER AUG 9
-    adsenseClient: 'ca-pub-6861925637204828',             // Google AdSense publisher ID
-    adsenseSlots: {                                       // AdSense slot IDs per placement
-      top: '1234567890',
-      inline: '2345678901',
-      sticky: '3456789012',
-      interstitial: '4567890123'
-    },
-    // Media.net customer/site IDs — set these once you sign up at media.net.
-    // Media.net gives you a `cid` (customer id) and one `crid` per ad slot.
-    // While these placeholders remain, Media.net renders a labeled placeholder
-    // (not a broken script), so the layout stays intact.
-    medianetCid: 'YOUR_MEDIANET_CID',
+    network: 'propeller',  // <-- PRIMARY: Propeller Ads
+    propellerPubId: 'YOUR_PROPELLER_PUB_ID',  // From Cloudflare env
+    propellerCode: 'YOUR_PROPELLER_CODE',      // JavaScript snippet ID
+    
+    ezoicSiteId: 'YOUR_EZOIC_SITE_ID',        // For optional dual-network
+    
+    medianetCid: 'YOUR_MEDIANET_CID',          // Contextual fallback
     medianetSlots: {
       top:          'YOUR_MEDIANET_CRID_TOP',
       inline:       'YOUR_MEDIANET_CRID_INLINE',
       sticky:       'YOUR_MEDIANET_CRID_STICKY',
       interstitial: 'YOUR_MEDIANET_CRID_INTERSTITIAL'
+    }
+  },
+
+  /* =========================================================
+     AFFILIATE CONFIG — Non-intrusive monetization
+     ---------------------------------------------------------
+     Affiliate links placed contextually (not intrusive):
+     - After greeting creation
+     - Footer recommendations
+     - Non-obtrusive & relevant to user journey
+     ========================================================= */
+  affiliates: {
+    flipkart: {
+      trackingId: 'YOUR_FLIPKART_AFFILIATE_ID',
+      // Base URL for Flipkart affiliate links
+      baseUrl: 'https://flipkart.affiliate.link'
+    },
+    amazon: {
+      trackingTag: 'YOUR_AMAZON_ASSOCIATE_TAG',  // From Amazon Associates
+      baseUrl: 'https://amazon.in/s'
+    },
+    fnp: {
+      campaignUrl: 'https://www.fnp.com/?utm_source=azadiwish&utm_medium=affiliate&utm_campaign=indday'
+    }
+  },
+
+  /* =========================================================
+     CONVERSION TRACKING — Affiliate & Ad Performance
+     ========================================================= */
+  tracking: {
+    trackAffiliateClicks: true,  // Track when users click affiliate links
+    trackAdImpressions: true,     // Track ad load events
+    trackConversions: true,       // Track affiliate conversions (pixel-based)
+    conversionPixels: {
+      flipkart: 'YOUR_FLIPKART_PIXEL_ID',
+      amazon: 'YOUR_AMAZON_PIXEL_ID',
+      fnp: 'YOUR_FNP_PIXEL_ID'
     }
   }
 };

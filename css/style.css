@@ -461,6 +461,133 @@ body {
 }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
+/* ===== AFFILIATE RECOMMENDATIONS (Non-Intrusive) ===== */
+.affiliate-recommendations {
+  background: linear-gradient(135deg, rgba(255, 153, 51, 0.08) 0%, rgba(19, 136, 8, 0.04) 100%);
+  border-left: 4px solid var(--saffron);
+  border-radius: 14px;
+  padding: 18px 16px;
+  margin: 22px auto;
+  max-width: 100%;
+}
+
+.affiliate-container {
+  width: 100%;
+}
+
+.affiliate-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 14px;
+  text-align: center;
+}
+
+.affiliate-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.affiliate-card {
+  background: #fff;
+  border: 1px solid #e8e8f0;
+  border-radius: 10px;
+  padding: 12px 14px;
+  text-align: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.affiliate-card:hover {
+  border-color: var(--saffron);
+  box-shadow: 0 4px 14px rgba(255, 153, 51, 0.15);
+  transform: translateY(-2px);
+}
+
+.affiliate-card h4 {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 6px;
+  line-height: 1.3;
+}
+
+.affiliate-card p {
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+
+.affiliate-btn {
+  display: inline-block;
+  padding: 8px 12px;
+  border-radius: 6px;
+  color: #fff;
+  text-decoration: none;
+  font-size: 0.8rem;
+  font-weight: 600;
+  transition: all 0.25s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.flipkart-btn {
+  background: linear-gradient(135deg, #FF9933, #ff7a1a);
+}
+
+.flipkart-btn:hover {
+  background: linear-gradient(135deg, #ff7a1a, #FF9933);
+  transform: scale(1.05);
+}
+
+.amazon-btn {
+  background: linear-gradient(135deg, #FF6B00, #ff5a00);
+}
+
+.amazon-btn:hover {
+  background: linear-gradient(135deg, #ff5a00, #FF6B00);
+  transform: scale(1.05);
+}
+
+.fnp-btn {
+  background: linear-gradient(135deg, #D32F2F, #c62828);
+}
+
+.fnp-btn:hover {
+  background: linear-gradient(135deg, #c62828, #D32F2F);
+  transform: scale(1.05);
+}
+
+.affiliate-disclosure {
+  font-size: 0.7rem;
+  color: var(--muted);
+  text-align: center;
+  margin-top: 8px;
+  line-height: 1.4;
+}
+
+/* Propeller & Ezoic ad slots styling */
+.propeller-ad-slot,
+.ezoic-ad-slot {
+  margin: 12px auto;
+  padding: 4px 0;
+}
+
+/* Mobile adjustments */
+@media (max-width: 480px) {
+  .affiliate-cards {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  
+  .affiliate-card {
+    padding: 10px 12px;
+  }
+}
+
 /* ---------- Small screens tweak ---------- */
 @media (max-width: 360px) {
   .greeting-card { min-height: 340px; padding: 20px 14px 26px; }
