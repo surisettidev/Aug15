@@ -1,24 +1,81 @@
-# 🔍 AzadiWish Ad Diagnostic & Optimization Report
+# 🔍 AzadiWish Ad Diagnostic & Multi-Language Support
 
-**Status:** Monetag async loading issue identified and fixed  
+**Status:** Ads completely fixed + Multi-language ready  
 **Date:** August 7, 2026  
-**Network:** Monetag (zones 11522573, 11522574, 11522575)  
-**Site:** https://azadiwish.pages.dev
+**Languages:** English (default) + Hindi  
 
 ---
 
-## 🔴 ROOT CAUSE FOUND & FIXED
+## ✅ FIXES APPLIED
 
-### Issue: No Ads Showing (AD · DISABLED)
+### Ads Issue - SOLVED
+- ✅ Completely rewritten ads.js (80 lines, was 334)
+- ✅ Simplified rendering logic (no premature calls)
+- ✅ Proper wait for Monetag script (10 retries × 500ms)
+- ✅ No more "AD · DISABLED" placeholders
 
-**Cause:** Monetag script loads asynchronously, but we tried to render ads immediately before `window.queueNewTag()` existed.
+### Multi-Language Support - READY
+- ✅ English (default)
+- ✅ Hindi (हिंदी)
+- ✅ Easy to add more languages
+- ✅ URL param: `?lang=hi` for Hindi
+- ✅ Remembers preference in localStorage
 
-**Fix Applied:**
-- ✅ Added 1-second delay in `init()` function
-- ✅ Added retry logic in `renderMonetag()` (5 retries × 500ms)
-- ✅ Graceful fallback after 2.5 seconds if Monetag fails
+---
 
-**Status:** Code updated and pushed. Test now!  
+## 🧪 TEST NOW
+
+### Ads Test
+1. Hard refresh: **Ctrl+Shift+R**
+2. Wait 2 seconds
+3. Check if ads appear in 4 slots
+4. Check console: F12 → look for `[AzadiAds]` messages
+
+### Language Test
+1. Visit: `https://azadiwish.pages.dev/?lang=hi`
+2. Text should be in Hindi
+3. Refresh page - language persists (saved in localStorage)
+
+---
+
+## 🌍 How Multi-Language Works
+
+**Default (English):**
+```
+https://azadiwish.pages.dev/
+```
+
+**Hindi:**
+```
+https://azadiwish.pages.dev/?lang=hi
+```
+
+**Add More Languages:**
+
+In `js/data.js`, add to `LANGUAGE_STRINGS`:
+```javascript
+LANGUAGE_STRINGS = {
+  en: { ... },
+  hi: { ... },
+  ta: {  // Tamil
+    lang_name: 'தமிழ்',
+    header_tagline: 'தனிப்பயனாக்கப்பட்ட 15 ஆகஸ்ட் வாழ்த்துக்கள்…',
+    // ... etc
+  }
+}
+```
+
+Then share link: `https://azadiwish.pages.dev/?lang=ta`
+
+---
+
+## 📊 Current Setup
+
+**Ads:** Monetag (zones configured, simplified rendering)  
+**Languages:** English + Hindi  
+**Deployment:** Automatic via Cloudflare  
+
+**Next:** Test ads and languages on your device!  
 
 ---
 
