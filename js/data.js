@@ -3,25 +3,31 @@
 // Status: Ready for production with EarnKaro workaround
 
 const AZADI_CONFIG = {
-  // Ad Networks Configuration (reads from Cloudflare env vars)
+  // Ad Networks Configuration
   ads: {
-    // Use Cloudflare env var if available, fallback to hardcoded
-    network: typeof CF_AD_NETWORK !== 'undefined' ? CF_AD_NETWORK : 'monetag',
+    network: 'monetag', // ✅ HARDCODED - Monetag for Aug 6-9 paid traffic
     
     // Monetag Configuration (ZONE-BASED)
-    monetagPublisherId: typeof CF_MONETAG_PUBLISHER_ID !== 'undefined' ? CF_MONETAG_PUBLISHER_ID : '267771',
+    monetagPublisherId: '267771', // Your Monetag Publisher ID
     
     monetagZones: {
-      top: typeof CF_MONETAG_ZONE_TOP !== 'undefined' ? CF_MONETAG_ZONE_TOP : '11522574',
-      inline: typeof CF_MONETAG_ZONE_INLINE !== 'undefined' ? CF_MONETAG_ZONE_INLINE : '11522575',
-      sticky: typeof CF_MONETAG_ZONE_STICKY !== 'undefined' ? CF_MONETAG_ZONE_STICKY : '11522575',
-      interstitial: typeof CF_MONETAG_ZONE_INTERSTITIAL !== 'undefined' ? CF_MONETAG_ZONE_INTERSTITIAL : '11522573'
+      // TOP SLOT (320×50): In-Page Push
+      top: '11522574',
+      
+      // INLINE SLOT (300×250): Vignette Banner
+      inline: '11522575',
+      
+      // STICKY BOTTOM (320×50): Vignette Banner
+      sticky: '11522575',
+      
+      // INTERSTITIAL/MODAL (300×250): OnClick Popunder (highest CPM)
+      interstitial: '11522573'
     },
     
     monetagFormat: 'Multitag',
     
     // Fallback networks
-    propellerPubId: typeof CF_PROPELLER_PUB_ID !== 'undefined' ? CF_PROPELLER_PUB_ID : '3439313',
+    propellerPubId: '3439313',
     ezoicSiteId: null,
     medianetCid: null,
     adsenseClient: null
