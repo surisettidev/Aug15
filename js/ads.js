@@ -77,37 +77,44 @@
     div.style.minHeight = (slotKey === 'inline' || slotKey === 'interstitial') ? '250px' : '50px';
     container.appendChild(div);
 
-    // Use Monetag's render function with manual mode
-    // Monetag exposes window.queueNewTag for manual zone rendering
-    try {
+    // Function to attempt rendering when Monetag is ready
+    function attemptRender(attempt) {
+      attempt = attempt || 0;
+      
       if (typeof window.queueNewTag === 'function') {
-        // New Monetag API - queue the tag for rendering
-        window.queueNewTag({
-          zone: parseInt(zoneId),
-          container: divId
-        });
-        log('Monetag zone queued: ' + zoneId + ' in container: ' + divId);
+        // Monetag script loaded successfully
+        try {
+          window.queueNewTag({
+            zone: parseInt(zoneId),
+            container: divId
+          });
+          log('Monetag zone queued: ' + zoneId + ' in container: ' + divId);
+        } catch (e) {
+          log('Monetag queueNewTag error: ' + e.message);
+        }
       } else if (typeof window.monetag !== 'undefined' && typeof window.monetag.render === 'function') {
         // Alternative Monetag render API
-        window.monetag.render(divId, zoneId);
-        log('Monetag zone rendered: ' + zoneId);
+        try {
+          window.monetag.render(divId, zoneId);
+          log('Monetag zone rendered: ' + zoneId);
+        } catch (e) {
+          log('Monetag render error: ' + e.message);
+        }
+      } else if (attempt < 5) {
+        // Monetag not ready yet, retry after 500ms (max 5 attempts = 2.5s)
+        setTimeout(function() {
+          attemptRender(attempt + 1);
+        }, 500);
+        log('Monetag not ready yet, retry attempt ' + (attempt + 1));
       } else {
-        // Fallback: create script tag for manual rendering
-        var tagScript = document.createElement('script');
-        tagScript.innerHTML = '(function(){' +
-          'if(typeof queueNewTag === "function") {' +
-            'queueNewTag({zone: ' + parseInt(zoneId) + ', container: "' + divId + '"});' +
-          '} else if (typeof monetag !== "undefined" && typeof monetag.render === "function") {' +
-            'monetag.render("' + divId + '", ' + parseInt(zoneId) + ');' +
-          '}' +
-        '})();';
-        container.appendChild(tagScript);
-        log('Monetag fallback script injected for zone: ' + zoneId);
+        // Monetag failed to load after 2.5 seconds
+        log('Monetag failed to load after retries');
+        showPlaceholder(container, 'Monetag ads unavailable');
       }
-    } catch (e) {
-      log('Monetag render error: ' + e.message);
-      showPlaceholder(container, 'Monetag render failed');
     }
+    
+    // Start attempting to render (with delay to let script load)
+    attemptRender(0);
   }
 
   // ---------- Propeller Ads loader ----------
@@ -293,34 +300,40 @@
     if (network === 'auto') loadMediaNet(); // fallback
 
     var slots = document.querySelectorAll('.ad-slot[data-ad-slot]');
-    slots.forEach(function (el) {
-      var slotKey = el.getAttribute('data-ad-slot');
-      // Clear any pre-existing placeholder text
-      el.textContent = '';
+    
+    // For Monetag, add delay to let async script load
+    var delayMs = (network === 'monetag') ? 1000 : 0;
+    
+    setTimeout(function() {
+      slots.forEach(function (el) {
+        var slotKey = el.getAttribute('data-ad-slot');
+        // Clear any pre-existing placeholder text
+        el.textContent = '';
 
-      if (network === 'monetag') {
-        renderMonetag(el, slotKey);
-      } else if (network === 'propeller') {
-        renderPropeller(el, slotKey);
-      } else if (network === 'ezoic') {
-        renderEzoic(el, slotKey);
-      } else if (network === 'medianet') {
-        renderMediaNet(el, slotKey);
-      } else if (network === 'adsense') {
-        renderAdSense(el, slotKey);
-      } else if (network === 'auto') {
-        // Try AdSense first (only if approved & traffic is 100% organic)
-        renderAdSense(el, slotKey);
-        // After 2.5s, if AdSense didn't fill this slot, swap in Media.net
-        setTimeout(function () {
-          if (!isAdSenseFilled(el)) {
-            log('AdSense unfilled on ' + slotKey + ' → falling back to Media.net');
-            el.textContent = '';
-            renderMediaNet(el, slotKey);
-          }
-        }, 2500);
-      }
-    });
+        if (network === 'monetag') {
+          renderMonetag(el, slotKey);
+        } else if (network === 'propeller') {
+          renderPropeller(el, slotKey);
+        } else if (network === 'ezoic') {
+          renderEzoic(el, slotKey);
+        } else if (network === 'medianet') {
+          renderMediaNet(el, slotKey);
+        } else if (network === 'adsense') {
+          renderAdSense(el, slotKey);
+        } else if (network === 'auto') {
+          // Try AdSense first (only if approved & traffic is 100% organic)
+          renderAdSense(el, slotKey);
+          // After 2.5s, if AdSense didn't fill this slot, swap in Media.net
+          setTimeout(function () {
+            if (!isAdSenseFilled(el)) {
+              log('AdSense unfilled on ' + slotKey + ' → falling back to Media.net');
+              el.textContent = '';
+              renderMediaNet(el, slotKey);
+            }
+          }, 2500);
+        }
+      });
+    }, delayMs);
   }
 
   window.AzadiAds = { init: init };
