@@ -3,44 +3,28 @@
 // Status: Ready for production with EarnKaro workaround
 
 const AZADI_CONFIG = {
-  // Ad Networks Configuration
+  // Ad Networks Configuration (reads from Cloudflare env vars)
   ads: {
-    network: 'monetag', // ✅ Monetag zone-based ads
+    // Use Cloudflare env var if available, fallback to hardcoded
+    network: typeof CF_AD_NETWORK !== 'undefined' ? CF_AD_NETWORK : 'monetag',
     
     // Monetag Configuration (ZONE-BASED)
-    monetagPublisherId: '267771', // Your Monetag Publisher ID from script tag
-    
-    // ZONE STRATEGY:
-    // Primary zones (highest CPM formats):
-    // - Onclick (Popunder): $12-20 CPM — use for interstitial (modal during share)
-    // - Vignette Banner: $10-15 CPM — use for sticky bottom
-    // - In-Page Push: $5-8 CPM — use for top/inline
-    // - Push Notifications: $8-12 CPM — use for background
+    monetagPublisherId: typeof CF_MONETAG_PUBLISHER_ID !== 'undefined' ? CF_MONETAG_PUBLISHER_ID : '267771',
     
     monetagZones: {
-      // TOP SLOT (320×50): Use In-Page Push (11522574) from Pleasant tag
-      top: '11522574',
-      
-      // INLINE SLOT (300×250): Use Vignette Banner (11522575) from Pleasant tag
-      inline: '11522575',
-      
-      // STICKY BOTTOM (320×50): Reuse Vignette or use OnClick
-      // Option 1: Reuse inline vignette (11522575) — cheaper tracking
-      // Option 2: Use OnClick (11522573) — more aggressive, higher CPM
-      sticky: '11522575',
-      
-      // INTERSTITIAL/MODAL (300×250): Use OnClick Popunder (11522573)
-      // Highest CPM ($12-20), user just clicked share button = high intent
-      interstitial: '11522573'
+      top: typeof CF_MONETAG_ZONE_TOP !== 'undefined' ? CF_MONETAG_ZONE_TOP : '11522574',
+      inline: typeof CF_MONETAG_ZONE_INLINE !== 'undefined' ? CF_MONETAG_ZONE_INLINE : '11522575',
+      sticky: typeof CF_MONETAG_ZONE_STICKY !== 'undefined' ? CF_MONETAG_ZONE_STICKY : '11522575',
+      interstitial: typeof CF_MONETAG_ZONE_INTERSTITIAL !== 'undefined' ? CF_MONETAG_ZONE_INTERSTITIAL : '11522573'
     },
     
-    monetagFormat: 'Multitag', // Recommended: auto-selects best format per zone
+    monetagFormat: 'Multitag',
     
-    // Fallback networks (for redundancy)
-    propellerPubId: '3439313', // ✅ Confirmed (optional fallback)
-    ezoicSiteId: null, // ⚠️ Skipped - custom domain required
-    medianetCid: null, // Optional fallback
-    adsenseClient: null // Kept for backward compatibility
+    // Fallback networks
+    propellerPubId: typeof CF_PROPELLER_PUB_ID !== 'undefined' ? CF_PROPELLER_PUB_ID : '3439313',
+    ezoicSiteId: null,
+    medianetCid: null,
+    adsenseClient: null
   },
 
   // Affiliate Networks - Updated Strategy
