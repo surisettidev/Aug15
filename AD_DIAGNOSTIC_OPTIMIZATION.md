@@ -1,9 +1,24 @@
 # 🔍 AzadiWish Ad Diagnostic & Optimization Report
 
-**Status:** Ads configured and deployed  
+**Status:** Monetag async loading issue identified and fixed  
 **Date:** August 7, 2026  
 **Network:** Monetag (zones 11522573, 11522574, 11522575)  
-**Site:** https://azadiwish.pages.dev  
+**Site:** https://azadiwish.pages.dev
+
+---
+
+## 🔴 ROOT CAUSE FOUND & FIXED
+
+### Issue: No Ads Showing (AD · DISABLED)
+
+**Cause:** Monetag script loads asynchronously, but we tried to render ads immediately before `window.queueNewTag()` existed.
+
+**Fix Applied:**
+- ✅ Added 1-second delay in `init()` function
+- ✅ Added retry logic in `renderMonetag()` (5 retries × 500ms)
+- ✅ Graceful fallback after 2.5 seconds if Monetag fails
+
+**Status:** Code updated and pushed. Test now!  
 
 ---
 
