@@ -71,21 +71,21 @@
         <span class="flag">🇮🇳</span>
         <span class="tri">AzadiWish</span>
       </div>
-      <p class="tagline">Personalized 15th August greetings — free &amp; instant</p>
+      <p class="tagline" data-i18n="header_tagline">Personalized 15th August greetings — free & instant</p>
     </header>
 
-    <p class="countdown" id="countdown">Countdown to 15 Aug…</p>
+    <p class="countdown" id="countdown" data-i18n="countdown">Countdown to 15 Aug…</p>
 
     <!-- ===== Live Preview Card ===== -->
     <main>
       <section class="card-wrap" aria-label="Greeting preview">
         <article class="greeting-card" id="greeting-card">
           <div class="chakra" id="chakra" aria-hidden="true"></div>
-          <span class="card-badge">🇮🇳 Freedom &amp; Pride</span>
-          <div class="card-year" id="card-year">INDEPENDENCE DAY</div>
+          <span class="card-badge" data-i18n="freedom_pride">🇮🇳 Freedom &amp; Pride</span>
+          <div class="card-year" id="card-year" data-i18n="independence_day">INDEPENDENCE DAY</div>
           <h1 class="card-name" id="card-name">Your Name</h1>
-          <p class="card-wish" id="card-wish">Happy Independence Day 🇮🇳</p>
-          <p class="card-sub" id="card-sub">Celebrating the spirit of freedom</p>
+          <p class="card-wish" id="card-wish" data-i18n="happy_independence">Happy Independence Day 🇮🇳</p>
+          <p class="card-sub" id="card-sub" data-i18n="spirit_freedom">Celebrating the spirit of freedom</p>
           <blockquote class="card-quote" id="card-quote"></blockquote>
           <span class="card-footer-brand">azadiwish.pages.dev</span>
           <div class="card-flag-strip" aria-hidden="true"></div>
@@ -99,31 +99,31 @@
 
       <!-- ===== Input Form ===== -->
       <section class="creator-form" aria-label="Create your greeting">
-        <label class="field-label" for="name-input">Enter Your Name / Business Name</label>
+        <label class="field-label" for="name-input" data-i18n="enter_name">Enter Your Name / Business Name</label>
         <input class="text-input" id="name-input" type="text" inputmode="text"
                autocomplete="name" maxlength="40" placeholder="e.g. Mahatma Gandhi" />
 
         <div class="form-row">
-          <label class="field-label" for="quote-select">Choose a patriotic quote</label>
+          <label class="field-label" for="quote-select" data-i18n="choose_quote">Choose a patriotic quote</label>
           <select class="quote-select" id="quote-select" aria-label="Choose a quote"></select>
         </div>
 
-        <button class="btn btn-share" id="share-btn" type="button">
+        <button class="btn btn-share" id="share-btn" type="button" data-i18n="btn_share">
           <span>📲</span> Share your greeting
         </button>
-        <button class="btn btn-copy" id="copy-btn" type="button">🔗 Copy my greeting link</button>
+        <button class="btn btn-copy" id="copy-btn" type="button" data-i18n="btn_copy">🔗 Copy my greeting link</button>
 
-        <p class="helper-note">100% free • No login • Made with 🧡🤍💚 for India</p>
+        <p class="helper-note" data-i18n="helper_note">100% free • No login • Made with 🧡🤍💚 for India</p>
       </section>
 
       <!-- ===== Slogan pride banner ===== -->
       <section class="slogan-banner">
-        <div class="slogan" id="slogan">Jai Hind! 🇮🇳</div>
-        <div class="slogan-sub" id="slogan-sub">Victory to India</div>
+        <div class="slogan" id="slogan" data-i18n="jai_hind">Jai Hind! 🇮🇳</div>
+        <div class="slogan-sub" id="slogan-sub" data-i18n="victory_india">Victory to India</div>
       </section>
 
       <!-- ===== Why we celebrate ===== -->
-      <h2 class="section-title" id="info-title">Why we celebrate 15th August</h2>
+      <h2 class="section-title" id="info-title" data-i18n="section_why">Why we celebrate 15th August</h2>
       <section class="info-card" id="info-body"></section>
     </main>
 
@@ -157,6 +157,7 @@
 
   <script src="js/data.js"></script>
   <script src="js/common.js"></script>
+  <script src="js/i18n.js"></script>
   <script src="js/ads.js"></script>
   <script src="js/affiliate.js"></script>
   <script src="js/creator.js"></script>

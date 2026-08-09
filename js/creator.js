@@ -21,13 +21,13 @@
 
   // --- init static bits ---
   chakraHost.innerHTML = chakraSVG();
-  cardYear.textContent = 'INDEPENDENCE DAY ' + cfg.independenceYear;
+  cardYear.textContent = t('independence_day');
   cardWish.textContent = wish.headline;
   cardSub.textContent = wish.sub;
 
   var sl = randomOf(window.AZADI_SLOGANS);
-  slogan.textContent = sl.slogan;
-  sloganSub.textContent = sl.sub;
+  slogan.textContent = sl.slogan || t('jai_hind');
+  sloganSub.textContent = sl.sub || t('victory_india');
 
   document.getElementById('info-title').textContent = window.AZADI_INFO.title;
   document.getElementById('info-body').innerHTML = window.AZADI_INFO.html;
@@ -161,10 +161,10 @@
 
   copyBtn.addEventListener('click', function () {
     var n = cleanName(nameInput.value);
-    if (!n || n.length < 2) { showToast('Enter your name first 🙂'); nameInput.focus(); return; }
+    if (!n || n.length < 2) { showToast(t('enter_name')); nameInput.focus(); return; }
     var url = buildWishUrl(n);
     if (navigator.clipboard) {
-      navigator.clipboard.writeText(url).then(function () { showToast('Link copied! 📋'); });
+      navigator.clipboard.writeText(url).then(function () { showToast(t('copied')); });
     } else {
       showToast(url);
     }
