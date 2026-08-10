@@ -46,12 +46,40 @@
   }
 
   function renderName() {
-    var n = cleanName(nameInput.value) || 'Your Name';
-    cardGreeting.textContent = n + ' wishes you';
-    // re-trigger pop animation
-    cardGreeting.style.animation = 'none';
+    var n = cleanName(nameInput.value);
+    
+    // If no name entered, use a random freedom fighter
+    if (!n || n.length < 2) {
+      var freedomFighters = [
+        "Mahatma Gandhi",
+        "Jawaharlal Nehru",
+        "Sardar Vallabhbhai Patel",
+        "Subhas Chandra Bose",
+        "Bhagat Singh",
+        "Bal Gangadhar Tilak",
+        "Aurobindo Ghosh",
+        "Keshab Chandra Sen",
+        "Rammohan Roy",
+        "Dadabhai Naoroji",
+        "Sukhdev Thapar",
+        "Chandrashekhar Azad",
+        "Lala Lajpat Rai",
+        "Bipin Chandra Pal",
+        "Annie Besant",
+        "Sarojini Naidu",
+        "Kamala Mehta",
+        "Ishan Chandra Vidyasagar",
+        "Vivekananda",
+        "Ramakrishna Paramahamsa"
+      ];
+      n = freedomFighters[Math.floor(Math.random() * freedomFighters.length)];
+      nameInput.value = n;
+    }
+    
+    cardGreeting.textContent = n + " wishes you";
+    cardGreeting.style.animation = "none";
     void cardGreeting.offsetWidth;
-    cardGreeting.style.animation = '';
+    cardGreeting.style.animation = "";
   }
 
   renderName();
