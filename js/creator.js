@@ -82,6 +82,33 @@
     cardGreeting.style.animation = "";
   }
 
+  // Initialize with random freedom fighter if no saved name
+  var savedName = localStorage.getItem('azadi_name');
+  if (!savedName) {
+    var freedomFighters = [
+      "Mahatma Gandhi",
+      "Jawaharlal Nehru",
+      "Sardar Vallabhbhai Patel",
+      "Subhas Chandra Bose",
+      "Bhagat Singh",
+      "Bal Gangadhar Tilak",
+      "Aurobindo Ghosh",
+      "Keshab Chandra Sen",
+      "Rammohan Roy",
+      "Dadabhai Naoroji",
+      "Sukhdev Thapar",
+      "Chandrashekhar Azad",
+      "Lala Lajpat Rai",
+      "Bipin Chandra Pal",
+      "Annie Besant",
+      "Sarojini Naidu",
+      "Kamala Mehta",
+      "Ishan Chandra Vidyasagar",
+      "Vivekananda",
+      "Ramakrishna Paramahamsa"
+    ];
+    nameInput.value = freedomFighters[Math.floor(Math.random() * freedomFighters.length)];
+  }
   renderName();
   renderQuote();
   updateCountdown(document.getElementById('countdown'));
