@@ -1,11 +1,12 @@
 /* ============================================================
-   AzadiWish — Monetag Direct Tag Injection
-   Simplest possible approach - inject Monetag tags directly
+   AzadiWish — Monetag + Fallback Ad System
+   Try Monetag, if fails show placeholder (no empty space)
 ============================================================ */
 
 (function() {
   var cfg = (window.AZADI_CONFIG && window.AZADI_CONFIG.ads) || {};
   var network = cfg.network || 'off';
+  var adsInjected = false;
   
   function log(msg) {
     console.info('[Ads]', msg);
@@ -19,8 +20,16 @@
       return;
     }
     
-    // Wait for Monetag script, then inject tags
+    // Try to inject Monetag ads
     waitAndInject(0);
+    
+    // Fallback: if no ads after 6 seconds, show message
+    setTimeout(function() {
+      if (!adsInjected) {
+        log('Monetag timed out, using fallback...');
+        showFallback();
+      }
+    }, 6000);
   }
   
   function waitAndInject(attempt) {
@@ -29,8 +38,9 @@
                         (typeof window.monetag !== 'undefined');
     
     if (monetagLoaded || attempt > 8) {
-      log('Injecting ad tags...');
+      log('Injecting Monetag ad tags...');
       injectAllTags();
+      adsInjected = true;
       return;
     }
     
@@ -41,25 +51,16 @@
   function injectAllTags() {
     var zones = cfg.monetagZones || {};
     
-    // Top slot
+    // Inject each zone
     if (zones.top) injectTag('top', zones.top, '320x50');
-    
-    // Inline slot  
     if (zones.inline) injectTag('inline', zones.inline, '300x250');
-    
-    // Sticky slot
     if (zones.sticky) injectTag('sticky', zones.sticky, '320x50');
-    
-    // Interstitial slot
     if (zones.interstitial) injectTag('interstitial', zones.interstitial, '300x250');
   }
   
   function injectTag(slotName, zoneId, size) {
     var slot = document.querySelector('[data-ad-slot="' + slotName + '"]');
-    if (!slot) {
-      log('Slot not found: ' + slotName);
-      return;
-    }
+    if (!slot) return;
     
     var containerId = 'ad-' + slotName + '-' + Math.random().toString(36).substr(2, 5);
     var container = document.createElement('div');
@@ -68,17 +69,33 @@
     container.style.width = '100%';
     slot.appendChild(container);
     
-    log('Tag injected: ' + slotName + ' zone=' + zoneId);
+    log('Queuing Monetag zone ' + zoneId + ' in slot ' + slotName);
     
     // Try to render with Monetag
-    if (typeof window.queueNewTag === 'function') {
-      window.queueNewTag({
-        zone: parseInt(zoneId),
-        container: containerId
-      });
-    } else if (typeof window.monetag !== 'undefined' && window.monetag.render) {
-      window.monetag.render(containerId, zoneId);
+    try {
+      if (typeof window.queueNewTag === 'function') {
+        window.queueNewTag({
+          zone: parseInt(zoneId),
+          container: containerId
+        });
+      } else if (typeof window.monetag !== 'undefined' && window.monetag.render) {
+        window.monetag.render(containerId, zoneId);
+      }
+    } catch(e) {
+      log('Error rendering zone ' + zoneId + ': ' + e.message);
     }
+  }
+  
+  function showFallback() {
+    // If Monetag didn't load, show info message in ad slots
+    document.querySelectorAll('[data-ad-slot]').forEach(function(slot) {
+      if (slot.children.length === 0) {
+        var msg = document.createElement('div');
+        msg.style.cssText = 'background:#f0f0f0;padding:10px;text-align:center;font-size:11px;color:#999;min-height:50px;display:flex;align-items:center;justify-content:center;';
+        msg.textContent = '📢 Ad space available';
+        slot.appendChild(msg);
+      }
+    });
   }
   
   // Start initialization
@@ -87,15 +104,6 @@
   } else {
     init();
   }
-  
-  // Also try on window load (fallback)
-  window.addEventListener('load', function() {
-    var zones = cfg.monetagZones || {};
-    if (zones.top && !document.getElementById('ad-top-assigned')) {
-      log('Retrying tag injection on window load...');
-      setTimeout(injectAllTags, 500);
-    }
-  });
 })();
 
 
