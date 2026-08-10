@@ -1,109 +1,111 @@
 /* ============================================================
-   AzadiWish — Monetag + Fallback Ad System
-   Try Monetag, if fails show placeholder (no empty space)
+   AzadiWish — Monetag Only (NO AdSense)
+   Google blocked AdSense account - using Monetag exclusively
 ============================================================ */
 
 (function() {
   var cfg = (window.AZADI_CONFIG && window.AZADI_CONFIG.ads) || {};
-  var network = cfg.network || 'off';
-  var adsInjected = false;
   
   function log(msg) {
     console.info('[Ads]', msg);
   }
   
   function init() {
-    log('Initializing ads, network: ' + network);
-    
-    if (network !== 'monetag') {
-      log('Ads disabled');
+    if (cfg.network !== 'monetag') {
+      log('Monetag not configured');
       return;
     }
     
-    // Try to inject Monetag ads
-    waitAndInject(0);
+    log('Starting Monetag ads...');
+    log('Publisher: ' + cfg.monetagPublisherId);
     
-    // Fallback: if no ads after 6 seconds, show message
-    setTimeout(function() {
-      if (!adsInjected) {
-        log('Monetag timed out, using fallback...');
-        showFallback();
+    // Try to render ads immediately, then keep retrying
+    injectAds();
+    
+    // Retry every 1 second for 10 seconds
+    var retries = 0;
+    var retryInterval = setInterval(function() {
+      retries++;
+      if (retries > 10 || adsRendered()) {
+        clearInterval(retryInterval);
+      } else {
+        injectAds();
       }
-    }, 6000);
+    }, 1000);
   }
   
-  function waitAndInject(attempt) {
-    // Check if Monetag loaded
-    var monetagLoaded = (typeof window.queueNewTag === 'function') || 
-                        (typeof window.monetag !== 'undefined');
-    
-    if (monetagLoaded || attempt > 8) {
-      log('Injecting Monetag ad tags...');
-      injectAllTags();
-      adsInjected = true;
-      return;
-    }
-    
-    // Wait 500ms and retry
-    setTimeout(function() { waitAndInject(attempt + 1); }, 500);
+  function adsRendered() {
+    // Check if any ads actually rendered
+    return document.querySelector('[id^="ad-"]') && 
+           document.querySelector('[id^="ad-"]').textContent !== 'Loading ad...';
   }
   
-  function injectAllTags() {
+  function injectAds() {
     var zones = cfg.monetagZones || {};
     
-    // Inject each zone
-    if (zones.top) injectTag('top', zones.top, '320x50');
-    if (zones.inline) injectTag('inline', zones.inline, '300x250');
-    if (zones.sticky) injectTag('sticky', zones.sticky, '320x50');
-    if (zones.interstitial) injectTag('interstitial', zones.interstitial, '300x250');
+    // Create ad containers for each slot
+    createAdContainer('top', zones.top, '320x50');
+    createAdContainer('inline', zones.inline, '300x250');
+    createAdContainer('sticky', zones.sticky, '320x50');
+    createAdContainer('interstitial', zones.interstitial, '300x250');
   }
   
-  function injectTag(slotName, zoneId, size) {
-    var slot = document.querySelector('[data-ad-slot="' + slotName + '"]');
-    if (!slot) return;
+  function createAdContainer(slotName, zoneId, size) {
+    if (!zoneId) return;
     
-    var containerId = 'ad-' + slotName + '-' + Math.random().toString(36).substr(2, 5);
+    var slot = document.querySelector('[data-ad-slot="' + slotName + '"]');
+    if (!slot || slot.querySelector('[id^="ad-"]')) return; // Already has ad
+    
+    var adId = 'ad-' + slotName + '-' + Math.random().toString(36).substr(2, 4);
     var container = document.createElement('div');
-    container.id = containerId;
-    container.style.minHeight = size === '300x250' ? '250px' : '50px';
-    container.style.width = '100%';
+    container.id = adId;
+    container.style.cssText = 'width:100%;min-height:' + (size.includes('300') ? '250' : '50') + 'px;';
+    container.textContent = 'Loading ad...';
     slot.appendChild(container);
     
-    log('Queuing Monetag zone ' + zoneId + ' in slot ' + slotName);
-    
-    // Try to render with Monetag
-    try {
-      if (typeof window.queueNewTag === 'function') {
+    // Try to render immediately
+    renderMonetag(adId, zoneId, slotName);
+  }
+  
+  function renderMonetag(containerId, zoneId, slotName) {
+    // Method 1: queueNewTag (if Monetag loaded)
+    if (typeof window.queueNewTag === 'function') {
+      try {
         window.queueNewTag({
           zone: parseInt(zoneId),
           container: containerId
         });
-      } else if (typeof window.monetag !== 'undefined' && window.monetag.render) {
-        window.monetag.render(containerId, zoneId);
+        log('✓ Monetag ad queued: ' + slotName);
+        return true;
+      } catch(e) {
+        log('✗ queueNewTag error: ' + e.message);
       }
-    } catch(e) {
-      log('Error rendering zone ' + zoneId + ': ' + e.message);
     }
-  }
-  
-  function showFallback() {
-    // If Monetag didn't load, show info message in ad slots
-    document.querySelectorAll('[data-ad-slot]').forEach(function(slot) {
-      if (slot.children.length === 0) {
-        var msg = document.createElement('div');
-        msg.style.cssText = 'background:#f0f0f0;padding:10px;text-align:center;font-size:11px;color:#999;min-height:50px;display:flex;align-items:center;justify-content:center;';
-        msg.textContent = '📢 Ad space available';
-        slot.appendChild(msg);
+    
+    // Method 2: window.monetag.render
+    if (typeof window.monetag !== 'undefined' && window.monetag.render) {
+      try {
+        window.monetag.render(containerId, zoneId);
+        log('✓ Monetag ad rendered: ' + slotName);
+        return true;
+      } catch(e) {
+        log('✗ monetag.render error: ' + e.message);
       }
-    });
+    }
+    
+    log('⚠ Monetag not ready for ' + slotName);
+    return false;
   }
   
-  // Start initialization
+  // Start on DOM ready
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
   } else {
-    init();
+    setTimeout(init, 100);
   }
+  
+  // Also try on window load
+  window.addEventListener('load', init);
 })();
 
 
