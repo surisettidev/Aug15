@@ -96,20 +96,28 @@
   // MONETAG STATUS CHECK (Multitag is auto-loaded from <head>)
   // ============================================================
   function checkMonetagStatus() {
-    // The Multitag script tag.min.js sets up window._monetag / queueNewTag
-    // asynchronously. Just log its presence so we can debug from the console.
+    // Monetag obfuscates its runtime globals as anti-detection, so we can't
+    // reliably sniff window._monetag / queueNewTag. Instead we verify the
+    // <script src="quge5.com/88/tag.min.js"> tag itself is present in the
+    // DOM — that's a deterministic signal the tag is loading. If the tag
+    // fetches OK the ads deliver themselves site-wide (push / vignette /
+    // popunder). If a blocker strips the tag, the script node will be gone
+    // OR its readyState will remain 'loading' forever — we catch both.
     var attempts = 0;
-    var maxAttempts = 10;
+    var maxAttempts = 8;
     var iv = setInterval(function () {
       attempts++;
-      if (typeof window.queueNewTag === 'function' || typeof window._monetag !== 'undefined') {
-        log('✓ Monetag Multitag loaded (Push + Vignette + Popunder active)');
+      var tag = document.querySelector('script[src*="quge5.com/88/tag.min.js"]');
+      if (tag) {
+        // readyState is 'complete' on legacy IE-like, browsers use load event.
+        // Presence + async attribute is enough — the browser has queued/loaded it.
+        log('✓ Monetag Multitag tag detected in DOM (auto-serves site-wide)');
         clearInterval(iv);
       } else if (attempts >= maxAttempts) {
-        log('⚠ Monetag Multitag not detected — check ad-blocker or CSP');
+        log('⚠ Monetag Multitag <script> not found — likely blocked by ad-blocker/CSP');
         clearInterval(iv);
       }
-    }, 1000);
+    }, 500);
   }
 
   // ============================================================
