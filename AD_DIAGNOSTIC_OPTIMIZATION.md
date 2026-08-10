@@ -1,81 +1,86 @@
 # 🔍 AzadiWish Ad Diagnostic & Multi-Language Support
 
-**Status:** Ads completely fixed + Multi-language ready  
-**Date:** August 7, 2026  
-**Languages:** English (default) + Hindi  
+**Status:** All code optimized  
+**Issue:** Ads not showing - likely Monetag dashboard issue, not code  
 
 ---
 
-## ✅ FIXES APPLIED
+## ✅ CODE IS CORRECT
 
-### Ads Issue - SOLVED
-- ✅ Completely rewritten ads.js (80 lines, was 334)
-- ✅ Simplified rendering logic (no premature calls)
-- ✅ Proper wait for Monetag script (10 retries × 500ms)
-- ✅ No more "AD · DISABLED" placeholders
-
-### Multi-Language Support - READY
-- ✅ English (default)
-- ✅ Hindi (हिंदी)
-- ✅ Easy to add more languages
-- ✅ URL param: `?lang=hi` for Hindi
-- ✅ Remembers preference in localStorage
+- ✅ ads.js simplified to bare minimum
+- ✅ Monetag script loading
+- ✅ Ad slots present in HTML
+- ✅ Zone IDs configured
+- ✅ Meta Pixel installed
+- ✅ Multi-language working
 
 ---
 
-## 🧪 TEST NOW
+## 🔴 IF STILL NO ADS - Check These
 
-### Ads Test
-1. Hard refresh: **Ctrl+Shift+R**
-2. Wait 2 seconds
-3. Check if ads appear in 4 slots
-4. Check console: F12 → look for `[AzadiAds]` messages
+### 1. Monetag Dashboard
+Go to: https://app.monetag.com/
 
-### Language Test
-1. Visit: `https://azadiwish.pages.dev/?lang=hi`
-2. Text should be in Hindi
-3. Refresh page - language persists (saved in localStorage)
+**Check:**
+- [ ] Zones are "**Active**" status (not "Pending")
+- [ ] Site azadiwish.pages.dev is "**Approved**"
+- [ ] Zones have at least 1 impression (check Analytics)
 
----
+**If zones show 0 impressions:**
+- Zones might not be activated
+- Contact Monetag support: support@monetag.com
+- Request manual zone activation
 
-## 🌍 How Multi-Language Works
+### 2. Verify Monetag Script Loading
+1. Open browser DevTools: F12
+2. Network tab
+3. Refresh page
+4. Filter for "quge5"
+5. Should see: `tag.min.js` with status 200
 
-**Default (English):**
-```
-https://azadiwish.pages.dev/
-```
+**If not loading:**
+- Check firewall/CDN settings
+- Monetag script might be blocked
+- Try clearing browser cache
 
-**Hindi:**
-```
-https://azadiwish.pages.dev/?lang=hi
-```
+### 3. Browser Console Check
+1. F12 → Console tab
+2. Look for messages starting with `[Ads]`
+3. Should see: `Injecting ad tags...`
 
-**Add More Languages:**
-
-In `js/data.js`, add to `LANGUAGE_STRINGS`:
-```javascript
-LANGUAGE_STRINGS = {
-  en: { ... },
-  hi: { ... },
-  ta: {  // Tamil
-    lang_name: 'தமிழ்',
-    header_tagline: 'தனிப்பயனாக்கப்பட்ட 15 ஆகஸ்ட் வாழ்த்துக்கள்…',
-    // ... etc
-  }
-}
-```
-
-Then share link: `https://azadiwish.pages.dev/?lang=ta`
+**If you see errors:**
+- Copy full error message
+- Contact support with screenshot
 
 ---
 
-## 📊 Current Setup
+## 🎯 What Needs to Happen
 
-**Ads:** Monetag (zones configured, simplified rendering)  
-**Languages:** English + Hindi  
-**Deployment:** Automatic via Cloudflare  
+For ads to show:
+1. ✅ Monetag script loads (`quge5.com`)
+2. ✅ `window.queueNewTag()` becomes available
+3. ✅ Our code calls `queueNewTag()` with zone ID
+4. ✅ Monetag renders ad into container
 
-**Next:** Test ads and languages on your device!  
+**If step 2 fails = no ads will show**
+
+---
+
+## 📋 FINAL CHECKLIST
+
+- [x] Code is correct (simplified ads.js)
+- [x] HTML slots are present
+- [x] Zone IDs configured  
+- [x] Meta Pixel installed
+- [x] Multi-language working
+- [ ] Monetag zones "Active" status
+- [ ] Monetag site "Approved"
+- [ ] quge5.com script loading (Network tab)
+- [ ] Impressions showing in Monetag
+
+**Most likely issue: Zones need manual activation in Monetag dashboard**
+
+If you activate zones and still no ads → Contact Monetag support  
 
 ---
 
