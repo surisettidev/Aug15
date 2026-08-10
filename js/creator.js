@@ -162,6 +162,8 @@
     var shareText = buildWhatsAppText(n, shareUrl);
 
     track('share_click', { name_len: n.length });
+    // Meta Pixel custom event — feed the Lookalike Audience builder
+    try { if (typeof fbq === 'function') fbq('trackCustom', 'AzadiShare', { name_len: n.length }); } catch (e) {}
     launchConfetti(1600);
 
     // Show 1.5s interstitial (with ad inside), THEN trigger the share.
@@ -172,7 +174,18 @@
     overlay.classList.add('show');
     setTimeout(function () {
       overlay.classList.remove('show');
-      openShareSheet(shareTitle, shareText, shareUrl);
+      // Note: Monetag Multitag delivers Push + Vignette + Popunder
+      // passively while the user is on the site — no need to interrupt
+      // the share click with an extra tab. If you later want an
+      // ad interstitial on share, set AZADI_CONFIG.ads.directLinkOnShare=true.
+      var interruptOk = !!(cfg && cfg.ads && cfg.ads.directLinkOnShare);
+      if (interruptOk && window.AzadiAds && window.AzadiAds.triggerDirectLink) {
+        window.AzadiAds.triggerDirectLink(function () {
+          openShareSheet(shareTitle, shareText, shareUrl);
+        });
+      } else {
+        openShareSheet(shareTitle, shareText, shareUrl);
+      }
     }, 1500);
   }
 

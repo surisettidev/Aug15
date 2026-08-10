@@ -1,8 +1,14 @@
 // AzadiWish - Updated Configuration
-// Updated: Aug 6, 2026
-// Status: Ready for production with EarnKaro workaround
+// Updated: Aug 10, 2026 — window.AZADI_CONFIG (was `const`, silently broke all scripts)
 
-const AZADI_CONFIG = {
+window.AZADI_CONFIG = {
+  // Site basics (was missing after rewrite)
+  siteName: 'AzadiWish',
+  baseUrl: 'https://azadiwish.pages.dev',
+  independenceYear: 2026,
+  independenceDateISO: '2026-08-15T00:00:00+05:30',
+  ga4Id: 'G-TPF23RP7M3',
+  useAiQuotes: false,
   // Ad Networks Configuration
   ads: {
     network: 'monetag', // ✅ HARDCODED - Monetag for Aug 6-9 paid traffic
@@ -10,22 +16,37 @@ const AZADI_CONFIG = {
     // Monetag Configuration (ZONE-BASED)
     monetagPublisherId: '267771', // Your Monetag Publisher ID
     
+    // NOTE (Aug 10 2026 fix): Monetag Multitag delivers Push / Vignette /
+    // In-Page Push / OnClick Popunder AUTOMATICALLY once tag.min.js loads
+    // in <head>. These zone IDs don't need to be injected into <div>s.
+    // They are kept here for reference + for the Direct-Link click-through
+    // (the ONE zone type we call explicitly from the share flow).
     monetagZones: {
-      // TOP SLOT (320×50): In-Page Push
-      top: '11522574',
-      
-      // INLINE SLOT (300×250): Vignette Banner
-      inline: '11522575',
-      
-      // STICKY BOTTOM (320×50): Vignette Banner
-      sticky: '11522575',
-      
-      // INTERSTITIAL/MODAL (300×250): OnClick Popunder (highest CPM)
-      interstitial: '11522573'
+      // Site-wide Multitag zones (auto-serve — script-only, no container):
+      pushNotifications:      '11522576',  // "Pleasant tag" push
+      vignetteBanner:         '11522575',  // "Pleasant tag" vignette
+      inPagePush:             '11522574',  // "Pleasant tag" in-page push
+      // OnClick Popunder — fires on any user click, high CPM:
+      onclickPopunder:        '11522573',  // "Pleasant tag" popunder
+      // Direct Link — used explicitly by share flow for a paid interstitial:
+      directLink:             '11522539',  // "Fabulous tag" direct link
+      // Backup / rotation zones:
+      pushBackup:             '11522442',  // "Fabulous tag" push
+      vignetteBackup:         '11522441',  // "Fabulous tag" vignette
+      inPageBackup:           '11522440',  // "Fabulous tag" in-page push
+      popunderBackup:         '11522439',  // "Fabulous tag" popunder
+      popunderExtra:          '11522444'   // "Nice tag" popunder
     },
     
     monetagFormat: 'Multitag',
-    
+
+    // User-flow protection: when TRUE, tapping "Share" opens the Monetag
+    // Direct-Link zone in a new tab BEFORE the native share sheet (paid
+    // interstitial). Leave FALSE by default — do NOT interrupt the share
+    // flow. Flip to true only if you need one more revenue lever and are
+    // willing to accept a small drop in share conversion.
+    directLinkOnShare: false,
+
     // Fallback networks
     propellerPubId: '3439313',
     ezoicSiteId: null,
@@ -140,7 +161,7 @@ const AZADI_CONFIG = {
 
 // Helper function to get affiliate link
 function getAffiliateLink(affiliateKey) {
-  const affiliate = AZADI_CONFIG.affiliates[affiliateKey];
+  const affiliate = window.AZADI_CONFIG.affiliates[affiliateKey];
   
   if (!affiliate) {
     console.warn(`Affiliate ${affiliateKey} not found`);
@@ -167,7 +188,7 @@ function getAffiliateLink(affiliateKey) {
 
 // Helper to check if affiliate is active
 function isAffiliateActive(affiliateKey) {
-  const affiliate = AZADI_CONFIG.affiliates[affiliateKey];
+  const affiliate = window.AZADI_CONFIG.affiliates[affiliateKey];
   return affiliate && affiliate.link;
 }
 
@@ -251,10 +272,47 @@ function setLanguage(lang) {
   }
 }
 
+// ============================================================
+// QUOTES / SLOGANS / INFO — restored on window (were missing → page crashed)
+// ============================================================
+window.AZADI_QUOTES = [
+  { text: "Freedom is not given, it is taken.", author: "Netaji Subhas Chandra Bose" },
+  { text: "Give me blood, and I shall give you freedom!", author: "Netaji Subhas Chandra Bose" },
+  { text: "Swaraj is my birthright, and I shall have it!", author: "Bal Gangadhar Tilak" },
+  { text: "In a gentle way, you can shake the world.", author: "Mahatma Gandhi" },
+  { text: "Be the change you wish to see in the world.", author: "Mahatma Gandhi" },
+  { text: "Where the mind is without fear and the head is held high.", author: "Rabindranath Tagore" },
+  { text: "We are Indians, firstly and lastly.", author: "B. R. Ambedkar" },
+  { text: "Dream is not what you see in sleep, it is something that does not let you sleep.", author: "Dr. A.P.J. Abdul Kalam" },
+  { text: "Sare Jahan Se Achha, Hindustan Hamara.", author: "Muhammad Iqbal" },
+  { text: "The sanctity of law can be maintained only so long as it is the will of the people.", author: "Bhagat Singh" },
+  { text: "One individual may die for an idea, but that idea will incarnate in a thousand lives.", author: "Netaji Subhas Chandra Bose" },
+  { text: "Even if I die, I will not stop working for India's freedom.", author: "Chandrashekhar Azad" }
+];
+
+window.AZADI_SLOGANS = [
+  { slogan: "Jai Hind! 🇮🇳",           sub: "Victory to India" },
+  { slogan: "Vande Mataram",           sub: "I bow to thee, Motherland" },
+  { slogan: "Har Ghar Tiranga",        sub: "A tricolour in every home" },
+  { slogan: "Inquilab Zindabad",       sub: "Long live the revolution" },
+  { slogan: "Sare Jahan Se Achha",     sub: "Better than the whole world, our India" }
+];
+
+window.AZADI_INFO = {
+  title: "Why we celebrate 15th August",
+  html:
+    "<p>On <strong>15th August 1947</strong>, India won freedom after nearly 200 years of British colonial rule. " +
+    "At the stroke of the midnight hour, India awoke to <strong>life and freedom</strong> — a moment immortalised " +
+    "by Pandit Jawaharlal Nehru's <em>Tryst with Destiny</em> speech.</p>" +
+    "<p>We celebrate the courage of freedom fighters like Gandhi, Bhagat Singh, Bose, Sarojini Naidu, Tilak, " +
+    "and thousands of unnamed heroes whose sacrifice built the world's largest democracy.</p>" +
+    "<p><strong>Jai Hind!</strong> 🇮🇳</p>"
+};
+
 // Export for use in other files
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
-    AZADI_CONFIG,
+    AZADI_CONFIG: window.AZADI_CONFIG,
     getAffiliateLink,
     isAffiliateActive,
     LANGUAGE_STRINGS,
