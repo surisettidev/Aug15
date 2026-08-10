@@ -5,9 +5,8 @@
 (function () {
   var nameInput = document.getElementById('name-input');
   var quoteSelect = document.getElementById('quote-select');
-  var cardName = document.getElementById('card-name');
+  var cardGreeting = document.getElementById('card-greeting');
   var cardWish = document.getElementById('card-wish');
-  var cardSub = document.getElementById('card-sub');
   var cardQuote = document.getElementById('card-quote');
   var cardYear = document.getElementById('card-year');
   var chakraHost = document.getElementById('chakra');
@@ -23,7 +22,6 @@
   chakraHost.innerHTML = chakraSVG();
   cardYear.textContent = t('independence_day');
   cardWish.textContent = wish.headline;
-  cardSub.textContent = wish.sub;
 
   var sl = randomOf(window.AZADI_SLOGANS);
   slogan.textContent = sl.slogan || t('jai_hind');
@@ -49,11 +47,11 @@
 
   function renderName() {
     var n = cleanName(nameInput.value) || 'Your Name';
-    cardName.textContent = n;
+    cardGreeting.textContent = n + ' wishes you';
     // re-trigger pop animation
-    cardName.style.animation = 'none';
-    void cardName.offsetWidth;
-    cardName.style.animation = '';
+    cardGreeting.style.animation = 'none';
+    void cardGreeting.offsetWidth;
+    cardGreeting.style.animation = '';
   }
 
   renderName();
