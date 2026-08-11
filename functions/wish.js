@@ -101,6 +101,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <meta name="description" content="${desc}"/>
 <link rel="canonical" href="${esc(canonical)}"/>
 <link rel="icon" type="image/svg+xml" href="/images/favicon.svg"/>
+<!-- Monetag site verification — replace with the code from your Monetag dashboard. See SYSTEM_LITERACY.md §5. -->
+<meta name="monetag" content="REPLACE_WITH_MONETAG_VERIFICATION_CODE"/>
 <meta property="og:type" content="website"/>
 <meta property="og:site_name" content="AzadiWish"/>
 <meta property="og:title" content="${title}"/>

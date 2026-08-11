@@ -127,6 +127,25 @@ window.AZADI_INFO    = { title: "Why we celebrate 15th August", html: "<p>…</p
 **Publisher ID:** `267771`
 **Format:** Multitag (script-only, auto-serves site-wide — NOT container based like AdSense).
 
+### ⚠ Two things Monetag needs OUTSIDE the code
+
+Ads will NOT render until both are done in the Monetag dashboard:
+
+1. **Add the site `azadiwish.pages.dev`** in *Sites → Add site*.
+2. **Verify the site** via the HTML meta-tag method:
+   - Copy the verification code from the Monetag dashboard.
+   - Paste it into the `content="…"` of the `<meta name="monetag" …>` tag in:
+     - `index.html` (around line 22)
+     - `wish.html` (around line 23)
+     - `functions/wish.js` (inline-fallback template, around line 104)
+   - Commit + push. Monetag re-scans within a few minutes.
+
+Until verified, Multitag (Push / Vignette / In-Page / Popunder) will silently
+serve zero ads even though the tag loads and the console shows
+`[Ads] ✓ Monetag Multitag tag detected in DOM`. The Direct-Link zone URLs
+(`https://quge5.com/4/<zoneId>`) pay per click regardless of site verification
+— that's why we also keep them in the affiliate rotation.
+
 ### Zone map
 
 | Zone name (in code)  | Zone ID     | Type          | How it fires |
@@ -163,9 +182,9 @@ The `.ad-slot` boxes are filled by `js/ads.js` with rotating **EarnKaro affiliat
 
 ---
 
-## 6. EarnKaro affiliates
+## 6. Affiliates — current status (Aug 10 2026)
 
-We can't register directly with Flipkart / Myntra any more (their programs are paused for new publishers in India). EarnKaro is the workaround — they own the affiliate link, we own the click.
+We can't register directly with Flipkart / Myntra any more (their programs are paused for new publishers in India). EarnKaro is the intended workaround — they own the affiliate link, we own the click.
 
 Live links in `js/data.js`:
 
@@ -175,6 +194,20 @@ Live links in `js/data.js`:
 - **FNP**      — direct
 
 `js/affiliate.js` renders the big "🎉 Make Your Celebration Special" section on both pages. `js/ads.js` also fills every empty `.ad-slot` with a rotating affiliate strip/card, so the visitor sees affiliate CTAs even in the ad zones.
+
+### ⚠ EarnKaro short-links returning 403 (Aug 10 2026)
+
+The current EarnKaro short-links (`fktr.in/JkfpqlU-flipkart`, `myntr.it/5S2JaJ9-myntra`) started returning **403 AccessDenied** from AWS S3 in production. Root cause is one of:
+
+- Links expired / were revoked in the EarnKaro dashboard.
+- EarnKaro requires the referring domain (`azadiwish.pages.dev`) to be registered as a publisher site in the EarnKaro dashboard first.
+
+**Recovery steps:**
+
+1. Log in to EarnKaro → *Add site* → register `azadiwish.pages.dev`.
+2. Generate fresh Flipkart + Myntra short-links (they expire after long inactivity).
+3. Replace the `link:` values inside `window.AZADI_CONFIG.affiliates.flipkart` and `.myntra` in `js/data.js`.
+4. Commit + push. **Amazon** (`vj0706-21`) and **FNP** direct links keep paying while EarnKaro is being fixed.
 
 ---
 
@@ -356,6 +389,14 @@ Should print nothing. If it throws, you broke a file.
 | WhatsApp share opens web page instead of native sheet | using `wa.me` link as `href` | use `navigator.share()` first, `wa.me` only as fallback |
 | Input field eaten by mobile browser bar | no iOS safe-area padding | `body { padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px)); }` |
 | iOS zooms the page on input focus | input `font-size < 16px` | `.text-input { font-size: 16px; }` |
+
+### Known harmless errors (do NOT chase)
+
+| Console/network error | What it actually is | Action |
+|---|---|---|
+| `Failed to load resource: … 400` (single occurrence, no URL in console) | The Meta Pixel `/tr?id=1341007244882883&ev=PageView` beacon. Facebook returns HTTP 400 on the pixel beacon when the domain isn't yet verified in Meta Business Manager. The PageView still counts in Events Manager because Meta's SDK uses a secondary sendBeacon channel. | Verify `azadiwish.pages.dev` in Meta Business Manager → Data Sources → Pixel → Domains. After that the 400 goes away. Safe to ignore in the meantime — no user-facing impact. |
+| `content-length: 0` on `quge5.com/88/tag.min.js?v=…` when tested via curl | Monetag serves an empty body when the URL has query params it doesn't recognize (anti-scraping). Real browser without cache-buster gets the real script. | Do NOT append query strings to the Monetag tag URL. Our `<script src="…tag.min.js">` has none. |
+| `[Ads] ⚠ Monetag Multitag not detected` in early test builds | Old check looked for `window.queueNewTag` / `window._monetag` which Monetag obfuscates. Fixed on Aug 10 2026: `js/ads.js` now sniffs the DOM for the `<script src="…tag.min.js">` tag. | None — already fixed. |
 
 ---
 
