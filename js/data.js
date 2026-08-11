@@ -22,6 +22,11 @@ window.AZADI_CONFIG = {
     // They are kept here for reference + for the Direct-Link click-through
     // (the ONE zone type we call explicitly from the share flow).
     monetagZones: {
+      // HTML slot names match these keys:
+      top:                    '11522574',  // "Pleasant tag" in-page push
+      inline:                 '11522575',  // "Pleasant tag" vignette
+      sticky:                 '11522575',  // "Pleasant tag" vignette (reuse)
+      interstitial:           '11522573',  // "Pleasant tag" popunder
       // Site-wide Multitag zones (auto-serve — script-only, no container):
       pushNotifications:      '11522576',  // "Pleasant tag" push
       vignetteBanner:         '11522575',  // "Pleasant tag" vignette
