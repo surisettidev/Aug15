@@ -336,6 +336,68 @@ Historical viral coefficient on greeting apps: **1 paid visitor → 3–6 WhatsA
 
 ---
 
+## 9.1 Connect the website to Meta Ads — 10-click quickstart
+
+Goal: get `azadiwish.pages.dev` running paid traffic on Instagram / Facebook / WhatsApp status placements in under 30 minutes on ₹300–₹350. Meta Pixel `1341007244882883` is **already** installed on every page (fires `PageView`, `AzadiShare`, `AzadiWishPageCta`, `AzadiStartClick` custom events).
+
+**Prerequisite:** one personal Facebook account. Any INR debit/UPI card. That's it.
+
+### Step 1 — Open Business Manager (2 clicks)
+1. Go to https://business.facebook.com → **Create Account** → name it "AzadiWish" → your email.
+2. Business Manager opens. You're inside your business.
+
+### Step 2 — Add the website as a domain (2 clicks + 1 verify)
+3. Left rail → **Business settings** → **Brand safety** → **Domains** → **Add** → type `azadiwish.pages.dev` → **Add domain**.
+4. Meta shows 3 verification options. Pick **Meta-tag verification** (fastest, no DNS access needed).
+5. Copy the meta tag Meta gives you (looks like `<meta name="facebook-domain-verification" content="xxxxxxxxxxxxxx">`), paste it into `index.html` `<head>` (right below the existing `<meta name="monetag">` placeholder), and inside `wish.html` `<head>` and `functions/wish.js` inline-fallback `<head>`. Commit + push. After the ~30s Cloudflare deploy, click **Verify** in Meta — status flips to "Verified" (green).
+
+### Step 3 — Attach the Pixel to the verified domain (1 click)
+6. Left rail → **Data sources** → **Datasets** (formerly "Pixels") → you'll already see one auto-created because the pixel is firing from your site. Open it → **Settings** → scroll to **Domains** → confirm `azadiwish.pages.dev` is listed → tick **Prioritize this pixel for this domain**. (If the dataset isn't there yet, click **Add** → **Connect a website** → paste pixel ID `1341007244882883` → it will detect the events already firing.)
+
+### Step 4 — Create the Ad Account (2 clicks)
+7. Business settings → **Accounts** → **Ad accounts** → **Add** → **Create a new ad account**:
+   - Name: `AzadiWish IN`
+   - Time zone: **Asia/Kolkata**
+   - Currency: **INR**
+   - Payment method: add UPI or debit card
+   - Assign to yourself as **Admin**.
+
+### Step 5 — Register the Custom Conversion (1 click)
+8. Left rail → **Events Manager** → your dataset → **Custom Conversions** tab → **Create custom conversion**:
+   - Name: `AzadiShare`
+   - Data source: your pixel
+   - Rule: **Event equals** `AzadiShare`
+   - Category: **Contact**
+   - Save. (This is what you'll optimise for once the ad set spends ₹100.)
+
+### Step 6 — Launch the Campaign (per §9 above)
+9. Go to https://adsmanager.facebook.com → **Create** → follow §9 spec exactly:
+   - Objective: **Traffic**
+   - Optimisation: **Landing Page Views** (switch to **AzadiShare** custom conversion once 50 events fire)
+   - Placements: **Advantage+** (auto — this is what unlocks Instagram Reels, FB Feed, WhatsApp status)
+   - Ad sets A + B with budgets and creatives from §9 above
+   - URL: `https://azadiwish.pages.dev/` (add UTM: `?utm_source=meta&utm_medium=cpc&utm_campaign=aug15_launch`)
+
+### Step 7 — Turn it on (1 click)
+10. **Publish**. Ads go into review — usually live in 15–60 minutes.
+
+### Where WhatsApp actually shows up
+Meta doesn't sell "WhatsApp ads" as a standalone placement for a landing-page campaign — WhatsApp Status ads roll out via **Advantage+ placements** automatically. What actually drives WhatsApp traffic on this app is **shares from Instagram/FB users hitting the site, tapping "Send on WhatsApp", and virally seeding recipient chats**. That's exactly why the `AzadiShare` event is the north star, not raw clicks.
+
+### Sanity check before you burn ₹300
+- Visit `https://azadiwish.pages.dev/` in an incognito tab, install the Meta Pixel Helper Chrome extension, and confirm you see:
+  - ✅ `PageView` fires on `/`
+  - ✅ `AzadiStartClick` fires when you click "Start — It's Free"
+  - ✅ `AzadiShare` fires when you click "Send on WhatsApp"
+- If any of these don't fire → **do not launch**. Debug first. A campaign without the share event tracked is a campaign optimising for garbage.
+
+### First ₹50 checkpoint
+- Meta Ads Manager → your campaign → **Breakdown** → **By placement**.
+- If **Instagram Reels** or **Instagram Stories** is cheaper than ₹0.80/LPV → good, let it run.
+- If **Facebook Right Column** or **Audience Network** is spending → **exclude those placements**. They're cheap junk clicks.
+
+---
+
 ## 10. Aug 9 switch — Monetag → AdSense
 
 Do this ONCE, in one commit:

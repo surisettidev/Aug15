@@ -161,6 +161,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <div class="card-flag-strip" aria-hidden="true"></div>
       </article>
     </section>
+    <div class="hero-cta hero-cta-wish">
+      <h2 class="hero-cta-title">💚 Send YOUR wish too — takes 10 seconds!</h2>
+      <p class="hero-cta-sub">Type your name → get a personalised card → share on WhatsApp. 100% free.</p>
+      <a class="btn btn-share hero-cta-btn" href="/index.html"
+         onclick="try{gtag('event','wish_page_cta_click',{loc:'hero'})}catch(e){};try{fbq('trackCustom','AzadiWishPageCta',{loc:'hero'})}catch(e){}">
+        <span>🎨</span> Create My Own Greeting — FREE
+      </a>
+    </div>
     <aside class="ad-slot ad-300x250" data-ad-slot="inline" aria-label="Advertisement"></aside>
     <section class="slogan-banner">
       <div class="slogan" id="slogan">Jai Hind! 🇮🇳</div>

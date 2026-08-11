@@ -191,8 +191,9 @@
 
   /**
    * Trigger the native OS share sheet (WhatsApp, Instagram, Telegram,
-   * Messages, Copy Link, etc.). Falls back to wa.me on desktops / old
-   * browsers that don't support navigator.share.
+   * Messages, Copy Link, etc.). Falls back to a manual chooser modal on
+   * desktops / in-app browsers (FB, IG in-app) that don't support
+   * navigator.share OR that expose it but silently no-op.
    */
   function openShareSheet(title, text, url) {
     var canNativeShare = (typeof navigator !== 'undefined' &&
@@ -207,20 +208,85 @@
             return;
           }
           track('share_native_fail', { err: String(err && err.name || err).slice(0, 40) });
-          openWhatsAppFallback(text);
+          openShareChooser(text, url);
         });
     } else {
-      openWhatsAppFallback(text);
+      openShareChooser(text, url);
     }
   }
 
-  function openWhatsAppFallback(text) {
-    track('share_whatsapp_open', {});
-    // wa.me works on mobile (opens native app) and desktop (opens WhatsApp Web).
-    var waUrl = 'https://wa.me/?text=' + encodeURIComponent(text);
-    // Use window.open so it opens a new tab on desktop instead of navigating away.
-    var w = window.open(waUrl, '_blank', 'noopener');
-    if (!w) window.location.href = waUrl; // popup blocked → same-tab
+  /**
+   * Manual share chooser — used when navigator.share is unavailable or
+   * fails (common in Instagram / Facebook in-app browsers on Android).
+   * Shows a small popover with WhatsApp / Instagram / Copy-Link buttons.
+   */
+  function openShareChooser(text, url) {
+    track('share_chooser_show', {});
+    // Build (or reuse) a chooser element
+    var existing = document.getElementById('share-chooser');
+    if (existing) existing.parentNode.removeChild(existing);
+
+    var wrap = document.createElement('div');
+    wrap.id = 'share-chooser';
+    wrap.className = 'share-chooser';
+    wrap.setAttribute('role', 'dialog');
+    wrap.setAttribute('aria-label', 'Choose where to share');
+    wrap.innerHTML =
+      '<div class="share-chooser-box">' +
+        '<div class="share-chooser-title">Share your wish</div>' +
+        '<button class="share-opt share-opt-wa" type="button" data-target="wa">' +
+          '<span>💬</span> Share on WhatsApp' +
+        '</button>' +
+        '<button class="share-opt share-opt-ig" type="button" data-target="ig">' +
+          '<span>📸</span> Open Instagram (paste link)' +
+        '</button>' +
+        '<button class="share-opt share-opt-fb" type="button" data-target="fb">' +
+          '<span>👍</span> Share on Facebook' +
+        '</button>' +
+        '<button class="share-opt share-opt-cp" type="button" data-target="cp">' +
+          '<span>🔗</span> Copy link' +
+        '</button>' +
+        '<button class="share-opt share-opt-cancel" type="button" data-target="cancel">Close</button>' +
+      '</div>';
+    document.body.appendChild(wrap);
+    // Fade in
+    requestAnimationFrame(function () { wrap.classList.add('show'); });
+
+    function close() {
+      wrap.classList.remove('show');
+      setTimeout(function () {
+        if (wrap.parentNode) wrap.parentNode.removeChild(wrap);
+      }, 200);
+    }
+    wrap.addEventListener('click', function (e) {
+      if (e.target === wrap) close();  // backdrop click
+    });
+    wrap.querySelectorAll('.share-opt').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var kind = btn.getAttribute('data-target');
+        if (kind === 'wa') {
+          track('share_wa', {});
+          window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank', 'noopener');
+        } else if (kind === 'ig') {
+          track('share_ig', {});
+          // Instagram has no share-text intent; copy link + open IG.
+          if (navigator.clipboard) navigator.clipboard.writeText(url).catch(function () {});
+          showToast('Link copied — paste in your Instagram Story or DM ✨');
+          window.open('https://www.instagram.com/', '_blank', 'noopener');
+        } else if (kind === 'fb') {
+          track('share_fb', {});
+          window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(url), '_blank', 'noopener');
+        } else if (kind === 'cp') {
+          track('share_copy', {});
+          if (navigator.clipboard) {
+            navigator.clipboard.writeText(url).then(function () { showToast(t('copied') || 'Copied!'); });
+          } else {
+            showToast(url);
+          }
+        }
+        close();
+      });
+    });
   }
 
   shareBtn.addEventListener('click', doShare);
@@ -242,5 +308,18 @@
   if (adClose) adClose.addEventListener('click', function () {
     var el = document.getElementById('ad-sticky');
     if (el) el.style.display = 'none';
+  });
+
+  // Hero CTA — scroll to + focus the name input, so above-the-fold click
+  // funnels straight into the creator flow.
+  var heroBtn = document.getElementById('hero-cta-btn');
+  if (heroBtn) heroBtn.addEventListener('click', function () {
+    track('hero_cta_click', {});
+    try { if (typeof fbq === 'function') fbq('trackCustom', 'AzadiStartClick', {}); } catch (e) {}
+    var target = document.querySelector('.creator-form') || nameInput;
+    if (target && target.scrollIntoView) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    setTimeout(function () { try { nameInput.focus(); } catch (e) {} }, 400);
   });
 })();

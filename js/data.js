@@ -1,5 +1,34 @@
-// AzadiWish - Updated Configuration
-// Updated: Aug 10, 2026 — window.AZADI_CONFIG (was `const`, silently broke all scripts)
+// ============================================================
+// AzadiWish — Configuration (single source of truth for every ID)
+// ------------------------------------------------------------
+// Updated: Aug 11, 2026
+//
+// ONE PLACE FOR EVERY HARDCODED ID.
+// The Cloudflare Pages "Variables and secrets" panel is IGNORED at
+// runtime — this is a static site, no build step reads env vars.
+// If you need to change any of these, edit them HERE and push.
+// The CF variables are kept only for documentation / future SSR.
+//
+//   Cloudflare env var name       →  file field (below)
+//   ─────────────────────────────    ────────────────────────
+//   AD_NETWORK                    →  ads.network
+//   CF_PROPELLER_PUB_ID           →  ads.propellerPubId
+//   CF_AMAZON_ASSOCIATE_TAG       →  affiliates.amazon.trackingTag
+//   EARNKARO_FLIPKART_LINK        →  affiliates.flipkart.link
+//   EARNKARO_MYNTRA_LINK          →  affiliates.myntra.link
+//   GA4_MEASUREMENT_ID            →  ga4Id  /  tracking.ga4MeasurementId
+//   USE_AI_QUOTES                 →  useAiQuotes / features.useAiQuotes
+//   TRACK_AD_IMPRESSIONS          →  tracking.trackAdImpressions
+//   TRACK_AFFILIATE_CLICKS        →  tracking.trackAffiliateClicks
+//   TRACK_CONVERSIONS             →  tracking.trackConversions
+//
+// Additional IDs (not in CF vars, hardcoded only here):
+//   Monetag publisher ID:  267771
+//   Monetag Multitag URL:  https://quge5.com/88/tag.min.js
+//   Meta Pixel ID:         1341007244882883    (used in index.html + wish.html)
+//   GTM container ID:      GTM-M4VZ3386        (used in index.html + wish.html)
+//   FNP campaign URL:      https://www.fnp.com/?utm_source=azadiwish...
+// ============================================================
 
 window.AZADI_CONFIG = {
   // Site basics (was missing after rewrite)
@@ -57,24 +86,31 @@ window.AZADI_CONFIG = {
   // Affiliate Networks - Updated Strategy
   affiliates: {
     flipkart: {
-      // ✅ Using EarnKaro workaround (Flipkart registration paused)
+      // ⚠ Aug 11 2026: fktr.in short-link returns 403 AccessDenied (S3).
+      // Root cause: EarnKaro requires publisher domain to be registered.
+      // Recovery: EarnKaro dashboard → register azadiwish.pages.dev →
+      //           regenerate short-link → replace `link:` below → flip
+      //           isBroken to false. See SYSTEM_LITERACY.md §6.
+      // While isBroken is true, ads.js skips this affiliate in rotation.
+      isBroken: true,
       isEarnkaro: true,
       provider: 'earnkaro',
       name: 'Flipkart',
       description: 'Flags, merchandise, gifts',
-      link: 'https://fktr.in/JkfpqlU-flipkart', // EarnKaro shortened URL
+      link: 'https://fktr.in/JkfpqlU-flipkart',
       icon: '🛍️',
       buttonClass: 'flipkart-btn',
       commissionNote: '5-20% via EarnKaro'
     },
 
     myntra: {
-      // ✅ Using EarnKaro workaround
+      // ⚠ Aug 11 2026: myntr.it short-link returns 403 (same cause as flipkart).
+      isBroken: true,
       isEarnkaro: true,
       provider: 'earnkaro',
       name: 'Myntra',
       description: 'Independence Day apparel & fashion',
-      link: 'https://myntr.it/5S2JaJ9-myntra', // EarnKaro shortened URL
+      link: 'https://myntr.it/5S2JaJ9-myntra',
       icon: '👕',
       buttonClass: 'myntra-btn',
       commissionNote: '5-15% via EarnKaro'

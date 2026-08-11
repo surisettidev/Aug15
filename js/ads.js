@@ -28,68 +28,119 @@
   }
 
   // ============================================================
-  // Fill each .ad-slot with a rotating affiliate mini-card so the
-  // ad boxes never look empty. This is real revenue (EarnKaro pays
-  // 5–20% commission on Flipkart / Myntra clicks that convert).
+  // Build the rotation pool for the .ad-slot boxes.
+  // Priority order (top first):
+  //   1. Working direct affiliates (Amazon, FNP) — highest trust, no 403
+  //   2. Monetag Direct-Link zone — paid CPM per click on affiliate strip
+  //   3. EarnKaro (Flipkart / Myntra) — only if !cfg.affiliates.earnkaroBroken
+  //
+  // NOTE (Aug 11 2026): The EarnKaro short-links fktr.in / myntr.it started
+  // returning 403 AccessDenied. Until publisher domain is registered in
+  // EarnKaro dashboard + fresh short-links pasted into data.js, we mark
+  // isBroken:true on those affiliates and skip them here.
   // ============================================================
-  function affiliateCardHtml(slotType) {
-    // Build a compact list of active affiliates
-    var items = [];
-    if (affiliates.flipkart)  items.push({ k:'flipkart',  a:affiliates.flipkart });
-    if (affiliates.amazon)    items.push({ k:'amazon',    a:affiliates.amazon });
-    if (affiliates.myntra)    items.push({ k:'myntra',    a:affiliates.myntra });
-    if (affiliates.fnp)       items.push({ k:'fnp',       a:affiliates.fnp });
-    if (!items.length) return null;
+  function buildRotationPool() {
+    var pool = [];
+    // Direct affiliates first (always work)
+    if (affiliates.amazon)   pool.push({ kind:'aff', k:'amazon',   a:affiliates.amazon });
+    if (affiliates.fnp)      pool.push({ kind:'aff', k:'fnp',      a:affiliates.fnp });
 
-    // Rotate deterministically per pageload so all four slots don't show the same
-    var idx = Math.floor(Math.random() * items.length);
-    var pick = items[idx];
-    var link = getAffiliateLink(pick.k) || '#';
+    // Monetag Direct-Link CPM strip (pays per click even without site verification)
+    var dlZone = (cfg.monetagZones && cfg.monetagZones.directLink) || null;
+    if (dlZone) {
+      pool.push({
+        kind: 'monetag_dl',
+        url: 'https://quge5.com/4/' + dlZone,
+        name: 'Special Offer',
+        description: 'Independence Day deals — tap to reveal!',
+        icon: '🎁',
+        buttonClass: 'monetag-dl-btn'
+      });
+    }
+
+    // EarnKaro links — only include if not marked broken
+    if (affiliates.flipkart && !affiliates.flipkart.isBroken) {
+      pool.push({ kind:'aff', k:'flipkart', a:affiliates.flipkart });
+    }
+    if (affiliates.myntra && !affiliates.myntra.isBroken) {
+      pool.push({ kind:'aff', k:'myntra', a:affiliates.myntra });
+    }
+    return pool;
+  }
+
+  function affiliateCardHtml(slotType, seed) {
+    var pool = buildRotationPool();
+    if (!pool.length) return null;
+
+    // Rotate deterministically per slot so 4 slots don't all show identical item
+    var idx = seed % pool.length;
+    var pick = pool[idx];
+
+    var link, brand, description, icon, buttonClass, gtagName;
+    if (pick.kind === 'monetag_dl') {
+      link = pick.url;
+      brand = pick.name;
+      description = pick.description;
+      icon = pick.icon;
+      buttonClass = pick.buttonClass;
+      gtagName = 'monetag_directlink';
+    } else {
+      link = getAffiliateLink(pick.k) || '#';
+      brand = pick.a.name;
+      description = pick.a.description;
+      icon = pick.a.icon;
+      buttonClass = pick.a.buttonClass;
+      gtagName = pick.a.name;
+    }
 
     var isInline = (slotType === 'inline' || slotType === 'interstitial');
-    var html;
+    var rel = (pick.kind === 'monetag_dl') ? 'noopener nofollow sponsored' : 'sponsored noopener';
+    var onclickAttr = 'onclick="try{gtag(\'event\',\'ad_click\',{network:\'' + gtagName + '\'})}catch(e){}"';
+
     if (isInline) {
       // 300x250-ish card
-      html =
-        '<a class="aff-card aff-inline ' + pick.a.buttonClass + '" href="' + link +
-        '" target="_blank" rel="sponsored noopener" ' +
-        'onclick="try{gtag(\'event\',\'affiliate_click\',{name:\'' + pick.a.name + '\'})}catch(e){}">' +
-          '<div class="aff-icon">' + pick.a.icon + '</div>' +
+      return '<a class="aff-card aff-inline ' + buttonClass + '" href="' + link +
+        '" target="_blank" rel="' + rel + '" ' + onclickAttr + '>' +
+          '<div class="aff-icon">' + icon + '</div>' +
           '<div class="aff-body">' +
-            '<div class="aff-brand">Shop on ' + pick.a.name + '</div>' +
-            '<div class="aff-desc">' + pick.a.description + '</div>' +
-            '<div class="aff-cta">Explore Independence Day deals →</div>' +
+            '<div class="aff-brand">' + (pick.kind === 'monetag_dl' ? brand : 'Shop on ' + brand) + '</div>' +
+            '<div class="aff-desc">' + description + '</div>' +
+            '<div class="aff-cta">' + (pick.kind === 'monetag_dl' ? 'Tap to open →' : 'Explore Independence Day deals →') + '</div>' +
           '</div>' +
         '</a>';
-    } else {
-      // 320x50 slim banner
-      html =
-        '<a class="aff-strip ' + pick.a.buttonClass + '" href="' + link +
-        '" target="_blank" rel="sponsored noopener" ' +
-        'onclick="try{gtag(\'event\',\'affiliate_click\',{name:\'' + pick.a.name + '\'})}catch(e){}">' +
-          '<span class="aff-strip-icon">' + pick.a.icon + '</span>' +
-          '<span class="aff-strip-txt">Shop <b>' + pick.a.name + '</b> — Independence Day deals</span>' +
-          '<span class="aff-strip-arrow">→</span>' +
-        '</a>';
     }
-    return html;
+    // 320x50 slim strip
+    return '<a class="aff-strip ' + buttonClass + '" href="' + link +
+      '" target="_blank" rel="' + rel + '" ' + onclickAttr + '>' +
+        '<span class="aff-strip-icon">' + icon + '</span>' +
+        '<span class="aff-strip-txt">' +
+          (pick.kind === 'monetag_dl'
+             ? '<b>' + brand + '</b> — ' + description
+             : 'Shop <b>' + brand + '</b> — Independence Day deals') +
+        '</span>' +
+        '<span class="aff-strip-arrow">→</span>' +
+      '</a>';
   }
 
   function fillAdSlots() {
     var slots = document.querySelectorAll('.ad-slot[data-ad-slot]');
-    slots.forEach(function (el) {
+    var filled = 0;
+    slots.forEach(function (el, i) {
       // Never blow away the close-button on the sticky slot
       var closeBtn = el.querySelector('.ad-close');
       var slotType = el.getAttribute('data-ad-slot');
-      var html = affiliateCardHtml(slotType);
+      // Use slot index as seed so each slot picks a different item from the pool
+      var html = affiliateCardHtml(slotType, i);
       if (!html) {
-        // Truly no affiliates configured → hide the slot instead of showing "AD · DISABLED"
+        // Truly nothing to show → hide the slot instead of showing "AD · DISABLED"
         el.style.display = 'none';
         return;
       }
       el.innerHTML = html;
       if (closeBtn) el.appendChild(closeBtn);
+      filled++;
     });
+    log('✓ Filled ' + filled + ' of ' + slots.length + ' .ad-slot boxes with affiliate/monetag content');
   }
 
   // ============================================================

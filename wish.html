@@ -95,6 +95,16 @@
         </article>
       </section>
 
+      <!-- ===== Prominent inline CTA — catches scroll users ===== -->
+      <div class="hero-cta hero-cta-wish">
+        <h2 class="hero-cta-title">💚 Send YOUR wish too — takes 10 seconds!</h2>
+        <p class="hero-cta-sub">Type your name → get a personalised card → share on WhatsApp. 100% free.</p>
+        <a class="btn btn-share hero-cta-btn" href="index.html"
+           onclick="try{gtag('event','wish_page_cta_click',{})}catch(e){};try{fbq('trackCustom','AzadiWishPageCta',{})}catch(e){}">
+          <span>🎨</span> Create My Own Greeting — FREE
+        </a>
+      </div>
+
       <!-- ===== Ad Slot 2: Native Banner under card ===== -->
       <aside class="ad-slot ad-300x250" data-ad-slot="inline" aria-label="Advertisement"></aside>
 
@@ -109,7 +119,8 @@
       <section class="info-card" id="info-body"></section>
 
       <!-- Inline create CTA (in addition to floating) -->
-      <a class="btn btn-share" href="index.html" style="margin-top:18px;text-decoration:none;">
+      <a class="btn btn-share" href="index.html" style="margin-top:18px;text-decoration:none;"
+         onclick="try{gtag('event','wish_page_cta_click',{loc:'bottom'})}catch(e){};try{fbq('trackCustom','AzadiWishPageCta',{loc:'bottom'})}catch(e){}">
         <span>🎨</span> Create Your Own Greeting — FREE
       </a>
     </main>
@@ -120,7 +131,8 @@
   </div>
 
   <!-- ===== Floating CTA (viral loop) ===== -->
-  <a class="floating-cta" id="floating-cta" href="index.html">
+  <a class="floating-cta" id="floating-cta" href="index.html"
+     onclick="try{gtag('event','wish_page_cta_click',{loc:'floating'})}catch(e){};try{fbq('trackCustom','AzadiWishPageCta',{loc:'floating'})}catch(e){}">
     <span>🎨</span> Create Your Own Greeting
   </a>
 

@@ -709,3 +709,133 @@ body {
 
 /* Prevent horizontal scroll from confetti canvas on mobile */
 #confetti-canvas { pointer-events: none; }
+
+/* ============================================================
+   Hero CTA — above-the-fold conversion driver (Aug 11 2026)
+   Used on / (index.html) as .hero-cta and on /wish as .hero-cta-wish.
+   ============================================================ */
+.hero-cta {
+  margin: 18px auto 22px;
+  max-width: 560px;
+  padding: 18px 20px 20px;
+  border-radius: 18px;
+  text-align: center;
+  background: linear-gradient(135deg, rgba(255,153,51,0.14) 0%, rgba(19,136,8,0.14) 100%);
+  border: 1px solid rgba(255,153,51,0.35);
+  box-shadow: 0 4px 18px rgba(0,0,0,0.06);
+}
+.hero-cta-title {
+  margin: 0 0 6px;
+  font-size: 20px;
+  font-weight: 800;
+  color: #1a1a1a;
+  line-height: 1.25;
+}
+.hero-cta-sub {
+  margin: 0 0 14px;
+  font-size: 14px;
+  color: #444;
+  line-height: 1.4;
+}
+.hero-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 16px;
+  padding: 12px 22px;
+  min-width: 220px;
+}
+/* Wish-page variant: slightly deeper green tint (matches page theme) */
+.hero-cta-wish {
+  background: linear-gradient(135deg, rgba(19,136,8,0.14) 0%, rgba(255,153,51,0.10) 100%);
+  border-color: rgba(19,136,8,0.35);
+}
+@media (max-width: 480px) {
+  .hero-cta { margin: 12px 12px 18px; padding: 14px 14px 16px; }
+  .hero-cta-title { font-size: 17px; }
+  .hero-cta-sub { font-size: 13px; }
+  .hero-cta-btn { width: 100%; }
+}
+
+/* Monetag Direct-Link affiliate variant (used in .ad-slot rotation) */
+.monetag-dl-btn {
+  background: linear-gradient(135deg, #ffb347 0%, #ff7f50 100%);
+  color: #fff !important;
+  border: none;
+}
+.aff-strip.monetag-dl-btn .aff-strip-txt,
+.aff-strip.monetag-dl-btn .aff-strip-arrow,
+.aff-strip.monetag-dl-btn .aff-strip-icon {
+  color: #fff;
+}
+.aff-card.monetag-dl-btn .aff-brand,
+.aff-card.monetag-dl-btn .aff-desc,
+.aff-card.monetag-dl-btn .aff-cta {
+  color: #fff;
+}
+
+/* ============================================================
+   Share chooser (fallback for in-app browsers without navigator.share)
+   ============================================================ */
+.share-chooser {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: rgba(0,0,0,0.55);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s ease;
+}
+.share-chooser.show { opacity: 1; pointer-events: auto; }
+.share-chooser-box {
+  width: 100%;
+  max-width: 480px;
+  background: #fff;
+  border-radius: 18px 18px 0 0;
+  padding: 18px 16px calc(18px + env(safe-area-inset-bottom, 0px));
+  box-shadow: 0 -6px 24px rgba(0,0,0,0.18);
+  transform: translateY(20px);
+  transition: transform 0.22s ease;
+}
+.share-chooser.show .share-chooser-box { transform: translateY(0); }
+.share-chooser-title {
+  text-align: center;
+  font-weight: 800;
+  font-size: 17px;
+  margin-bottom: 12px;
+  color: #1a1a1a;
+}
+.share-opt {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 14px;
+  margin: 6px 0;
+  border-radius: 12px;
+  border: 1px solid #eaeaea;
+  background: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  color: #1a1a1a;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+.share-opt:active,
+.share-opt:hover { background: #f6f6f6; }
+.share-opt-wa { background: #dcf8c6; border-color: #b6e19a; }
+.share-opt-ig { background: linear-gradient(90deg, #ffedd6 0%, #ffd1dc 100%); border-color: #f3b7c8; }
+.share-opt-fb { background: #e3edff; border-color: #b6cef7; }
+.share-opt-cp { background: #fff8e6; border-color: #f0d97a; }
+.share-opt-cancel {
+  margin-top: 8px;
+  background: transparent;
+  border: none;
+  color: #666;
+  font-weight: 500;
+  justify-content: center;
+}
