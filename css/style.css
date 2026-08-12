@@ -839,3 +839,12 @@ body {
   font-weight: 500;
   justify-content: center;
 }
+
+
+/* ============================================================
+   DIRECT MONETAG OVERLAY - Hide ad-slot containers
+   Ads display as direct overlays, not embedded in elements
+   ============================================================ */
+.ad-slot {
+  display: none !important;
+}
